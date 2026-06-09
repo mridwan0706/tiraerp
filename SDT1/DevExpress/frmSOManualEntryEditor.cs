@@ -5707,8 +5707,6 @@ ORDER BY reason";
                     _repoBatchSearchLookUp.ValueMember = "mb_batch_id";
                     // DisableTextEditor: nilai hanya bisa dipilih dari lookup (tidak bisa diketik).
                     _repoBatchSearchLookUp.TextEditStyle = TextEditStyles.DisableTextEditor;
-                    // Mirip tab Partner Function: icon search dibuka cukup sekali klik.
-                    _repoBatchSearchLookUp.ShowDropDown = ShowDropDown.SingleClick;
                     _repoBatchSearchLookUp.PopupFilterMode = PopupFilterMode.Contains;
                     _repoBatchSearchLookUp.ImmediatePopup = true;
                     _repoBatchSearchLookUp.PopupFormSize = new Size(620, 320);
@@ -5738,6 +5736,9 @@ ORDER BY reason";
                 {
                     view.ShowingEditor += SalesDetailView_ShowingEditorBatch;
                     _repoBatchSearchLookUp.QueryPopUp += RepoBatchSearchLookUp_QueryPopUp;
+                    // Tombol Search adalah button kustom -> tidak otomatis membuka popup.
+                    // Buka popup secara eksplisit saat icon search di-klik.
+                    _repoBatchSearchLookUp.ButtonClick += RepoBatchSearchLookUp_ButtonClick;
                     _isBatchSearchLookUpHooked = true;
                 }
             }
@@ -5803,6 +5804,27 @@ ORDER BY reason";
             catch
             {
                 e.Cancel = true;
+            }
+        }
+
+        private void RepoBatchSearchLookUp_ButtonClick(object sender, ButtonPressedEventArgs e)
+        {
+            try
+            {
+                if (e.Button == null || e.Button.Kind != ButtonPredefines.Search)
+                    return;
+
+                GridView view = GetGridView(dgvSalesDetail);
+                if (view == null) return;
+                if (!IsBatchAllowed(view.FocusedRowHandle))
+                    return;
+
+                DevExpress.XtraEditors.SearchLookUpEdit edit = sender as DevExpress.XtraEditors.SearchLookUpEdit;
+                if (edit != null)
+                    edit.ShowPopup();
+            }
+            catch
+            {
             }
         }
 
