@@ -160,6 +160,7 @@ namespace TIRASnDNet.PROCESS.SO.SOManualEntry
             this.colSD30 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.colSD31 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.colSD32 = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colSD33 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.dgvTax = new TIRASnDNet.PROCESS.SO.SOManualEntry.DataGridView();
             this.dgvPromoTax = new TIRASnDNet.PROCESS.SO.SOManualEntry.DataGridView();
             this.groupBox4 = new DevExpress.XtraEditors.GroupControl();
@@ -1700,7 +1701,8 @@ namespace TIRASnDNet.PROCESS.SO.SOManualEntry
             this.colSD29,
             this.colSD30,
             this.colSD31,
-            this.colSD32});
+            this.colSD32,
+            this.colSD33});
             this.gvSalesDetail.GridControl = this.dgvSalesDetail;
             this.gvSalesDetail.HorzScrollVisibility = DevExpress.XtraGrid.Views.Base.ScrollVisibility.Always;
             this.gvSalesDetail.IndicatorWidth = 40;
@@ -1935,6 +1937,15 @@ namespace TIRASnDNet.PROCESS.SO.SOManualEntry
             this.colSD32.Visible = true;
             this.colSD32.VisibleIndex = 10;
             this.colSD32.Width = 60;
+            //
+            // colSD33
+            //
+            this.colSD33.Caption = "Batch";
+            this.colSD33.FieldName = "prd_batch";
+            this.colSD33.Name = "colSD33";
+            this.colSD33.Visible = true;
+            this.colSD33.VisibleIndex = 11;
+            this.colSD33.Width = 90;
             //
             // dgvTax
             //
@@ -4488,6 +4499,7 @@ namespace TIRASnDNet.PROCESS.SO.SOManualEntry
         private DevExpress.XtraGrid.Columns.GridColumn colSD30;
         private DevExpress.XtraGrid.Columns.GridColumn colSD31;
         private DevExpress.XtraGrid.Columns.GridColumn colSD32;
+        private DevExpress.XtraGrid.Columns.GridColumn colSD33;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;

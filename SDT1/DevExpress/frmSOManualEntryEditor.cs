@@ -62,6 +62,7 @@ namespace TIRASnDNet.PROCESS.SO.SOManualEntry
         private const string COL_REASON = "reason";
         private const string COL_TGL_PRICE = "tgl_price";
         private const string COL_IS_SUBS = "wsd_is_subs";
+        private const string COL_BATCH = "prd_batch";
 
         // DevExpress validation provider untuk mandatory field.
         // MessageBox lama tetap dipertahankan; ini hanya menambahkan tanda merah di form.
@@ -324,9 +325,11 @@ namespace TIRASnDNet.PROCESS.SO.SOManualEntry
         private DataGridViewComboBoxCell cbCellReason;
         private RepositoryItemSearchLookUpEdit _repoReasonSearchLookUp;
         private RepositoryItemButtonEdit _repoSubsButtonEdit;
+        private RepositoryItemSearchLookUpEdit _repoBatchSearchLookUp;
         private DataTable _dtReasonSearchLookUp;
         private bool _isReasonSearchLookUpHooked = false;
         private bool _isSubsSearchLookUpHooked = false;
+        private bool _isBatchSearchLookUpHooked = false;
         private bool _ignoreSLEDCheckEvent = false;
         private bool _updatingHeaderParty = false;
 
@@ -5680,6 +5683,142 @@ ORDER BY reason";
             return (_clsGlobal.Connect.State == ConnectionState.Closed) ? _clsGlobal.ExecDT(sql) : _clsGlobal.ExecDTTrans(sql);
         }
 
+        // Kolom "Batch" (prd_batch): read-only, hanya bisa diisi lewat SearchLookUpEdit.
+        // Sumber data IM_MST_BATCH difilter sesuai produk baris (kode/grade/size), gaya
+        // tampilan mengikuti search lookup Branch di header.
+        private void EnsureBatchSearchLookUpEditor()
+        {
+            try
+            {
+                GridView view = GetGridView(dgvSalesDetail);
+                if (view == null) return;
+
+                GridColumn batchColumn = view.Columns.ColumnByFieldName(COL_BATCH) ?? view.Columns[COL_BATCH];
+                if (batchColumn == null) return;
+
+                if (_repoBatchSearchLookUp == null)
+                {
+                    _repoBatchSearchLookUp = new RepositoryItemSearchLookUpEdit();
+                    _repoBatchSearchLookUp.Name = "repoBatchSearchLookUp";
+                    _repoBatchSearchLookUp.NullText = "";
+                    _repoBatchSearchLookUp.Buttons.Clear();
+                    _repoBatchSearchLookUp.Buttons.Add(new EditorButton(ButtonPredefines.Search));
+                    _repoBatchSearchLookUp.DisplayMember = "mb_batch_id";
+                    _repoBatchSearchLookUp.ValueMember = "mb_batch_id";
+                    // DisableTextEditor: nilai hanya bisa dipilih dari lookup (tidak bisa diketik).
+                    _repoBatchSearchLookUp.TextEditStyle = TextEditStyles.DisableTextEditor;
+                    _repoBatchSearchLookUp.PopupFilterMode = PopupFilterMode.Contains;
+                    _repoBatchSearchLookUp.ImmediatePopup = true;
+                    _repoBatchSearchLookUp.PopupFormSize = new Size(620, 320);
+
+                    GridView batchView = new GridView();
+                    batchView.OptionsView.ShowGroupPanel = false;
+                    batchView.OptionsView.ShowIndicator = false;
+                    batchView.OptionsView.ColumnAutoWidth = false;
+                    batchView.FocusRectStyle = DevExpress.XtraGrid.Views.Grid.DrawFocusRectStyle.RowFocus;
+                    batchView.OptionsSelection.EnableAppearanceFocusedCell = false;
+                    _repoBatchSearchLookUp.View = batchView;
+                }
+
+                if (!dgvSalesDetail.RepositoryItems.Contains(_repoBatchSearchLookUp))
+                    dgvSalesDetail.RepositoryItems.Add(_repoBatchSearchLookUp);
+
+                batchColumn.ColumnEdit = _repoBatchSearchLookUp;
+                batchColumn.OptionsColumn.AllowEdit = true;
+                batchColumn.OptionsColumn.ReadOnly = false;
+
+                ConfigureBatchPopupColumns();
+
+                if (!_isBatchSearchLookUpHooked)
+                {
+                    view.ShowingEditor += SalesDetailView_ShowingEditorBatch;
+                    _repoBatchSearchLookUp.QueryPopUp += RepoBatchSearchLookUp_QueryPopUp;
+                    _isBatchSearchLookUpHooked = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, clsGlobal.APP_MSG_CAPTION, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+        }
+
+        private void ConfigureBatchPopupColumns()
+        {
+            GridView popupView = _repoBatchSearchLookUp == null ? null : _repoBatchSearchLookUp.View as GridView;
+            if (popupView == null) return;
+
+            popupView.Columns.Clear();
+            popupView.Columns.AddVisible("mb_prd_code", "Product");
+            popupView.Columns.AddVisible("mb_prd_grade", "Grade");
+            popupView.Columns.AddVisible("mb_prd_size", "Size");
+            popupView.Columns.AddVisible("mb_batch_id", "Batch");
+            popupView.Columns.AddVisible("mb_exp_date", "Exp Date");
+            popupView.BestFitColumns();
+        }
+
+        private void SalesDetailView_ShowingEditorBatch(object sender, CancelEventArgs e)
+        {
+            try
+            {
+                GridView view = sender as GridView;
+                if (view == null || view.FocusedColumn == null) return;
+
+                if (!string.Equals(view.FocusedColumn.FieldName, COL_BATCH, StringComparison.OrdinalIgnoreCase))
+                    return;
+
+                if (!IsBatchAllowed(view.FocusedRowHandle))
+                    e.Cancel = true;
+            }
+            catch
+            {
+                e.Cancel = true;
+            }
+        }
+
+        private void RepoBatchSearchLookUp_QueryPopUp(object sender, CancelEventArgs e)
+        {
+            try
+            {
+                GridView view = GetGridView(dgvSalesDetail);
+                if (view == null) return;
+
+                int rowHandle = view.FocusedRowHandle;
+                if (!IsBatchAllowed(rowHandle))
+                {
+                    e.Cancel = true;
+                    return;
+                }
+
+                string pcode = Convert.ToString(view.GetRowCellValue(rowHandle, COL_PCODE));
+                string grade = Convert.ToString(view.GetRowCellValue(rowHandle, "wsd_grade"));
+                string size = Convert.ToString(view.GetRowCellValue(rowHandle, "wsd_prd_size"));
+                _repoBatchSearchLookUp.DataSource = GetBatchLookup(pcode, grade, size);
+                ConfigureBatchPopupColumns();
+            }
+            catch
+            {
+                e.Cancel = true;
+            }
+        }
+
+        private bool IsBatchAllowed(int rowHandle)
+        {
+            GridView view = GetGridView(dgvSalesDetail);
+            if (view == null || rowHandle < 0) return false;
+            return !string.IsNullOrWhiteSpace(Convert.ToString(view.GetRowCellValue(rowHandle, COL_PCODE)));
+        }
+
+        private DataTable GetBatchLookup(string pcode, string grade, string size)
+        {
+            string sql = "select mb_prd_code, mb_prd_grade, mb_prd_size, mb_batch_id, mb_exp_date " +
+                "from IM_MST_BATCH WITH(NOLOCK) " +
+                "where mb_prd_code = '" + Convert.ToString(pcode).Replace("'", "''") + "' " +
+                "and mb_prd_grade = '" + Convert.ToString(grade).Replace("'", "''") + "' " +
+                "and mb_prd_size = '" + Convert.ToString(size).Replace("'", "''") + "' " +
+                "order by mb_batch_id";
+            return (_clsGlobal.Connect.State == ConnectionState.Closed) ? _clsGlobal.ExecDT(sql) : _clsGlobal.ExecDTTrans(sql);
+        }
+
         private void SetGridCellValueSafe(int rowHandle, string fieldName, object value)
         {
             try
@@ -5728,6 +5867,8 @@ ORDER BY reason";
             dtGridSODetail.Columns.Add("wsd_prd_line_code", typeof(string));
             dtGridSODetail.Columns.Add(COL_IS_SUBS, typeof(string));
             dtGridSODetail.Columns[COL_IS_SUBS].DefaultValue = "N";
+            dtGridSODetail.Columns.Add(COL_BATCH, typeof(string));
+            dtGridSODetail.Columns[COL_BATCH].DefaultValue = "";
             dgv.UseDesignTimeColumns = true;
             dgv.DataSource = dtGridSODetail;
 
@@ -5765,6 +5906,7 @@ ORDER BY reason";
             dgv.Columns["wsd_NetSales"].ReadOnly = true;
             dgv.Columns["wsd_prd_line_code"].ReadOnly = true;
             dgv.Columns[COL_IS_SUBS].ReadOnly = true;
+            dgv.Columns[COL_BATCH].ReadOnly = true;
 
 
 
@@ -5778,6 +5920,7 @@ ORDER BY reason";
 
             EnsureReasonSearchLookUpEditor();
             EnsureSubstitutionSearchLookUpEditor();
+            EnsureBatchSearchLookUpEditor();
 
             //width header
             dgv.Columns["wsd_het_unit_price"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
@@ -5837,6 +5980,7 @@ ORDER BY reason";
             dgv.Columns["wsd_NetSales"].Visible = true;
             dgv.Columns["wsd_prd_line_code"].Visible = false;
             dgv.Columns[COL_IS_SUBS].Visible = true;
+            dgv.Columns[COL_BATCH].Visible = true;
 
             //dgv.Columns["wsd_prd_master_code"].ReadOnly = true; commented 23/01/19
             dgv.Columns["prm_prd_desc"].ReadOnly = true;
@@ -5860,6 +6004,7 @@ ORDER BY reason";
             dgv.Columns["wsd_NetSales"].ReadOnly = true;
             dgv.Columns["wsd_prd_line_code"].ReadOnly = true;
             dgv.Columns[COL_IS_SUBS].ReadOnly = true;
+            dgv.Columns[COL_BATCH].ReadOnly = true;
 
             dgv.Columns["wsd_prd_master_code"].HeaderText = "PCODE";
             dgv.Columns["wsd_real_order_amt"].HeaderText = "real ordera";
@@ -5895,6 +6040,8 @@ ORDER BY reason";
             dgv.Columns["wsd_prd_line_code"].HeaderText = "Product Line";
             dgv.Columns[COL_IS_SUBS].HeaderText = "Subs";
             EnsureSubstitutionSearchLookUpEditor();
+            dgv.Columns[COL_BATCH].HeaderText = "Batch";
+            EnsureBatchSearchLookUpEditor();
             //width header
             dgv.Columns["wsd_het_unit_price"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             dgv.Columns["ijumlahharga"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
