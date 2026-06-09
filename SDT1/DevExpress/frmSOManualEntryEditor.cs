@@ -5702,11 +5702,13 @@ ORDER BY reason";
                     _repoBatchSearchLookUp.Name = "repoBatchSearchLookUp";
                     _repoBatchSearchLookUp.NullText = "";
                     _repoBatchSearchLookUp.Buttons.Clear();
-                    _repoBatchSearchLookUp.Buttons.Add(new EditorButton(ButtonPredefines.Search));
+                    _repoBatchSearchLookUp.Buttons.Add(new EditorButton(ButtonPredefines.Search) { ToolTip = "Search Batch" });
                     _repoBatchSearchLookUp.DisplayMember = "mb_batch_id";
                     _repoBatchSearchLookUp.ValueMember = "mb_batch_id";
                     // DisableTextEditor: nilai hanya bisa dipilih dari lookup (tidak bisa diketik).
                     _repoBatchSearchLookUp.TextEditStyle = TextEditStyles.DisableTextEditor;
+                    // Mirip tab Partner Function: icon search dibuka cukup sekali klik.
+                    _repoBatchSearchLookUp.ShowDropDown = ShowDropDown.SingleClick;
                     _repoBatchSearchLookUp.PopupFilterMode = PopupFilterMode.Contains;
                     _repoBatchSearchLookUp.ImmediatePopup = true;
                     _repoBatchSearchLookUp.PopupFormSize = new Size(620, 320);
@@ -5726,6 +5728,9 @@ ORDER BY reason";
                 batchColumn.ColumnEdit = _repoBatchSearchLookUp;
                 batchColumn.OptionsColumn.AllowEdit = true;
                 batchColumn.OptionsColumn.ReadOnly = false;
+                // Tampilkan icon search secara permanen pada kolom (seperti tab Partner Function),
+                // bukan hanya saat sel di-fokus/masuk mode edit.
+                batchColumn.ShowButtonMode = DevExpress.XtraGrid.Views.Base.ShowButtonModeEnum.ShowAlways;
 
                 ConfigureBatchPopupColumns();
 
