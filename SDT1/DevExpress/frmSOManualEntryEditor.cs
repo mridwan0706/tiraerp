@@ -62,7 +62,6 @@ namespace TIRASnDNet.PROCESS.SO.SOManualEntry
         private const string COL_REASON = "reason";
         private const string COL_TGL_PRICE = "tgl_price";
         private const string COL_IS_SUBS = "wsd_is_subs";
-        private const string COL_SUBS_LOOKUP = "wsd_subs_lookup";
 
         // DevExpress validation provider untuk mandatory field.
         // MessageBox lama tetap dipertahankan; ini hanya menambahkan tanda merah di form.
@@ -324,7 +323,7 @@ namespace TIRASnDNet.PROCESS.SO.SOManualEntry
         private DataTable dtGridPromoTax = new DataTable();
         private DataGridViewComboBoxCell cbCellReason;
         private RepositoryItemSearchLookUpEdit _repoReasonSearchLookUp;
-        private RepositoryItemSearchLookUpEdit _repoSubsSearchLookUp;
+        private RepositoryItemButtonEdit _repoSubsButtonEdit;
         private DataTable _dtReasonSearchLookUp;
         private bool _isReasonSearchLookUpHooked = false;
         private bool _isSubsSearchLookUpHooked = false;
@@ -5466,51 +5465,34 @@ ORDER BY reason";
                 GridView view = GetGridView(dgvSalesDetail);
                 if (view == null) return;
 
-                GridColumn subsColumn = view.Columns.ColumnByFieldName(COL_SUBS_LOOKUP) ?? view.Columns[COL_SUBS_LOOKUP];
-                if (subsColumn == null) return;
+                // Lookup substitusi kini menyatu di kolom "Subs" (wsd_is_subs) — tidak ada
+                // kolom tersendiri. Kolom tetap menampilkan flag Y/N, dan pada baris ber-flag "Y"
+                // ditambahkan tombol Search (kaca pembesar) untuk membuka daftar substitusi.
                 GridColumn flagColumn = view.Columns.ColumnByFieldName(COL_IS_SUBS) ?? view.Columns[COL_IS_SUBS];
-                if (flagColumn != null)
+                if (flagColumn == null) return;
+
+                if (_repoSubsButtonEdit == null)
                 {
-                    flagColumn.OptionsColumn.AllowEdit = false;
-                    flagColumn.OptionsColumn.ReadOnly = true;
+                    _repoSubsButtonEdit = new RepositoryItemButtonEdit();
+                    _repoSubsButtonEdit.Name = "repoSubsButtonEdit";
+                    _repoSubsButtonEdit.TextEditStyle = TextEditStyles.DisableTextEditor;
+                    _repoSubsButtonEdit.Buttons.Clear();
+                    _repoSubsButtonEdit.Buttons.Add(new EditorButton(ButtonPredefines.Search));
+                    _repoSubsButtonEdit.ButtonClick += RepoSubsButtonEdit_ButtonClick;
                 }
 
-                if (_repoSubsSearchLookUp == null)
-                {
-                    _repoSubsSearchLookUp = new RepositoryItemSearchLookUpEdit();
-                    _repoSubsSearchLookUp.Name = "repoSubsSearchLookUp";
-                    _repoSubsSearchLookUp.NullText = "";
-                    _repoSubsSearchLookUp.Buttons.Clear();
-                    _repoSubsSearchLookUp.Buttons.Add(new EditorButton(ButtonPredefines.Search));
-                    _repoSubsSearchLookUp.DisplayMember = "prds_child";
-                    _repoSubsSearchLookUp.ValueMember = "prds_child";
-                    _repoSubsSearchLookUp.TextEditStyle = TextEditStyles.Standard;
-                    _repoSubsSearchLookUp.PopupFilterMode = PopupFilterMode.Contains;
-                    _repoSubsSearchLookUp.ImmediatePopup = true;
-                    _repoSubsSearchLookUp.PopupFormSize = new Size(760, 320);
+                if (!dgvSalesDetail.RepositoryItems.Contains(_repoSubsButtonEdit))
+                    dgvSalesDetail.RepositoryItems.Add(_repoSubsButtonEdit);
 
-                    GridView subsView = new GridView();
-                    subsView.OptionsView.ShowGroupPanel = false;
-                    subsView.OptionsView.ShowIndicator = false;
-                    subsView.OptionsView.ColumnAutoWidth = false;
-                    subsView.FocusRectStyle = DevExpress.XtraGrid.Views.Grid.DrawFocusRectStyle.RowFocus;
-                    subsView.OptionsSelection.EnableAppearanceFocusedCell = false;
-                    _repoSubsSearchLookUp.View = subsView;
-                }
-
-                if (!dgvSalesDetail.RepositoryItems.Contains(_repoSubsSearchLookUp))
-                    dgvSalesDetail.RepositoryItems.Add(_repoSubsSearchLookUp);
-
-                subsColumn.ColumnEdit = _repoSubsSearchLookUp;
-                subsColumn.OptionsColumn.AllowEdit = true;
-                subsColumn.OptionsColumn.ReadOnly = false;
-
-                ConfigureSubstitutionPopupColumns();
+                // Kolom Subs harus bisa "edit" agar tombol lookup aktif; perubahan teks dicegah
+                // lewat DisableTextEditor + ShowingEditor (baris non-"Y" tidak boleh masuk edit).
+                flagColumn.OptionsColumn.AllowEdit = true;
+                flagColumn.OptionsColumn.ReadOnly = false;
 
                 if (!_isSubsSearchLookUpHooked)
                 {
                     view.ShowingEditor += SalesDetailView_ShowingEditorSubstitution;
-                    _repoSubsSearchLookUp.QueryPopUp += RepoSubsSearchLookUp_QueryPopUp;
+                    view.CustomRowCellEdit += SalesDetailView_CustomRowCellEditSubstitution;
                     _isSubsSearchLookUpHooked = true;
                 }
             }
@@ -5520,22 +5502,24 @@ ORDER BY reason";
             }
         }
 
-        private void ConfigureSubstitutionPopupColumns()
+        // Hanya baris dengan flag "Y" yang memakai editor bertombol lookup; baris "N" tampil teks biasa.
+        private void SalesDetailView_CustomRowCellEditSubstitution(object sender, DevExpress.XtraGrid.Views.Grid.CustomRowCellEditEventArgs e)
         {
-            GridView popupView = _repoSubsSearchLookUp == null ? null : _repoSubsSearchLookUp.View as GridView;
-            if (popupView == null) return;
+            try
+            {
+                if (e.Column == null) return;
+                if (!string.Equals(e.Column.FieldName, COL_IS_SUBS, StringComparison.OrdinalIgnoreCase)) return;
 
-            popupView.Columns.Clear();
-            popupView.Columns.AddVisible("prds_entity_id", "Entity");
-            popupView.Columns.AddVisible("prds_branch_id", "Branch");
-            popupView.Columns.AddVisible("prds_line", "Line");
-            popupView.Columns.AddVisible("prds_parent", "Parent");
-            popupView.Columns.AddVisible("prds_child", "Child");
-            popupView.Columns.AddVisible("prds_index", "Index");
-            popupView.Columns.AddVisible("prds_valid_from", "Valid From");
-            popupView.Columns.AddVisible("prds_valid_to", "Valid To");
-            popupView.Columns.AddVisible("prds_mrp_ind", "MRP");
-            popupView.BestFitColumns();
+                GridView view = sender as GridView;
+                if (view == null) return;
+
+                string flag = Convert.ToString(view.GetRowCellValue(e.RowHandle, COL_IS_SUBS));
+                if (string.Equals(flag, "Y", StringComparison.OrdinalIgnoreCase) && _repoSubsButtonEdit != null)
+                    e.RepositoryItem = _repoSubsButtonEdit;
+            }
+            catch
+            {
+            }
         }
 
         private void SalesDetailView_ShowingEditorSubstitution(object sender, CancelEventArgs e)
@@ -5545,7 +5529,7 @@ ORDER BY reason";
                 GridView view = sender as GridView;
                 if (view == null || view.FocusedColumn == null) return;
 
-                if (!string.Equals(view.FocusedColumn.FieldName, COL_SUBS_LOOKUP, StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(view.FocusedColumn.FieldName, COL_IS_SUBS, StringComparison.OrdinalIgnoreCase))
                     return;
 
                 RefreshSubstitutionFlag(view.FocusedRowHandle);
@@ -5558,7 +5542,7 @@ ORDER BY reason";
             }
         }
 
-        private void RepoSubsSearchLookUp_QueryPopUp(object sender, CancelEventArgs e)
+        private void RepoSubsButtonEdit_ButtonClick(object sender, ButtonPressedEventArgs e)
         {
             try
             {
@@ -5567,20 +5551,76 @@ ORDER BY reason";
 
                 int rowHandle = view.FocusedRowHandle;
                 if (!IsSubstitutionAllowed(rowHandle))
-                {
-                    e.Cancel = true;
                     return;
-                }
 
-                string parent = Convert.ToString(view.GetRowCellValue(rowHandle, COL_PCODE));
-                string line = Convert.ToString(view.GetRowCellValue(rowHandle, "wsd_prd_line_code"));
-                _repoSubsSearchLookUp.DataSource = GetSubstitutionLookup(parent, line);
-                ConfigureSubstitutionPopupColumns();
+                ShowSubstitutionPopup(rowHandle);
             }
-            catch
+            catch (Exception ex)
             {
-                e.Cancel = true;
+                MessageBox.Show(ex.Message, clsGlobal.APP_MSG_CAPTION, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
+        }
+
+        // Menampilkan daftar substitusi untuk baris terpilih dalam popup modal (pengganti kolom
+        // lookup terpisah). Sifatnya read-only/browse, konsisten dengan perilaku sebelumnya.
+        private void ShowSubstitutionPopup(int rowHandle)
+        {
+            GridView view = GetGridView(dgvSalesDetail);
+            if (view == null || rowHandle < 0) return;
+
+            string parent = Convert.ToString(view.GetRowCellValue(rowHandle, COL_PCODE));
+            string line = Convert.ToString(view.GetRowCellValue(rowHandle, "wsd_prd_line_code"));
+            DataTable dt = GetSubstitutionLookup(parent, line);
+
+            using (XtraForm popup = new XtraForm())
+            {
+                popup.Text = "Substitusi - Parent " + parent;
+                popup.StartPosition = FormStartPosition.CenterParent;
+                popup.ShowIcon = false;
+                popup.MinimizeBox = false;
+                popup.MaximizeBox = false;
+                popup.ClientSize = new Size(780, 360);
+
+                GridControl gc = new GridControl();
+                gc.Dock = DockStyle.Fill;
+                GridView gv = new GridView(gc);
+                gc.MainView = gv;
+                gc.ViewCollection.Add(gv);
+                gv.OptionsBehavior.Editable = false;
+                gv.OptionsView.ShowGroupPanel = false;
+                gv.OptionsView.ShowIndicator = false;
+                gv.OptionsView.ColumnAutoWidth = false;
+                gv.FocusRectStyle = DevExpress.XtraGrid.Views.Grid.DrawFocusRectStyle.RowFocus;
+                gc.DataSource = dt;
+                gc.ForceInitialize();
+                gv.PopulateColumns();
+                ConfigureSubstitutionPopupColumns(gv);
+
+                popup.Controls.Add(gc);
+                popup.ShowDialog(this);
+            }
+        }
+
+        private void ConfigureSubstitutionPopupColumns(GridView popupView)
+        {
+            if (popupView == null) return;
+
+            SetSubstitutionColumnCaption(popupView, "prds_entity_id", "Entity");
+            SetSubstitutionColumnCaption(popupView, "prds_branch_id", "Branch");
+            SetSubstitutionColumnCaption(popupView, "prds_line", "Line");
+            SetSubstitutionColumnCaption(popupView, "prds_parent", "Parent");
+            SetSubstitutionColumnCaption(popupView, "prds_child", "Child");
+            SetSubstitutionColumnCaption(popupView, "prds_index", "Index");
+            SetSubstitutionColumnCaption(popupView, "prds_valid_from", "Valid From");
+            SetSubstitutionColumnCaption(popupView, "prds_valid_to", "Valid To");
+            SetSubstitutionColumnCaption(popupView, "prds_mrp_ind", "MRP");
+            popupView.BestFitColumns();
+        }
+
+        private void SetSubstitutionColumnCaption(GridView popupView, string fieldName, string caption)
+        {
+            GridColumn col = popupView.Columns.ColumnByFieldName(fieldName);
+            if (col != null) col.Caption = caption;
         }
 
         private bool IsSubstitutionAllowed(int rowHandle)
@@ -5601,8 +5641,6 @@ ORDER BY reason";
                 string line = Convert.ToString(view.GetRowCellValue(rowHandle, "wsd_prd_line_code")).Trim();
                 string flag = HasSubstitutionParent(parent, line) ? "Y" : "N";
                 view.SetRowCellValue(rowHandle, COL_IS_SUBS, flag);
-                if (flag != "Y")
-                    view.SetRowCellValue(rowHandle, COL_SUBS_LOOKUP, "");
             }
             catch { }
         }
@@ -5689,9 +5727,7 @@ ORDER BY reason";
             dtGridSODetail.Columns.Add("wsd_NetSales", typeof(string));
             dtGridSODetail.Columns.Add("wsd_prd_line_code", typeof(string));
             dtGridSODetail.Columns.Add(COL_IS_SUBS, typeof(string));
-            dtGridSODetail.Columns.Add(COL_SUBS_LOOKUP, typeof(string));
             dtGridSODetail.Columns[COL_IS_SUBS].DefaultValue = "N";
-            dtGridSODetail.Columns[COL_SUBS_LOOKUP].DefaultValue = "";
             dgv.UseDesignTimeColumns = true;
             dgv.DataSource = dtGridSODetail;
 
@@ -5801,7 +5837,6 @@ ORDER BY reason";
             dgv.Columns["wsd_NetSales"].Visible = true;
             dgv.Columns["wsd_prd_line_code"].Visible = false;
             dgv.Columns[COL_IS_SUBS].Visible = true;
-            dgv.Columns[COL_SUBS_LOOKUP].Visible = true;
 
             //dgv.Columns["wsd_prd_master_code"].ReadOnly = true; commented 23/01/19
             dgv.Columns["prm_prd_desc"].ReadOnly = true;
@@ -5859,7 +5894,6 @@ ORDER BY reason";
             dgv.Columns["wsd_NetSales"].HeaderText = "Net Sales";
             dgv.Columns["wsd_prd_line_code"].HeaderText = "Product Line";
             dgv.Columns[COL_IS_SUBS].HeaderText = "Subs";
-            dgv.Columns[COL_SUBS_LOOKUP].HeaderText = "";
             EnsureSubstitutionSearchLookUpEditor();
             //width header
             dgv.Columns["wsd_het_unit_price"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
@@ -6844,7 +6878,6 @@ ORDER BY reason";
                         row.Cells["wsd_NetSales"].Value = Convert.ToDecimal(rw["Net_Sales"]).ToString("#,##0.00");
                         row.Cells["wsd_prd_line_code"].Value = rw["wsd_prd_line_code"].ToString();
                         row.Cells[COL_IS_SUBS].Value = rw["wsd_is_subs"].ToString();
-                        row.Cells[COL_SUBS_LOOKUP].Value = "";
 
                         //wsd_req_order_xqty = wsd_real_order_xqty TPM-6612
                         row.Cells["wsd_req_order_xqty"].Value = rw["wsd_req_order_xqty"].ToString();
