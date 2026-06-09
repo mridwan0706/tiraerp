@@ -161,6 +161,7 @@ namespace TIRASnDNet.PROCESS.SO.SOManualEntry
             this.colSD31 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.colSD32 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.colSD33 = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colSD34 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.dgvTax = new TIRASnDNet.PROCESS.SO.SOManualEntry.DataGridView();
             this.dgvPromoTax = new TIRASnDNet.PROCESS.SO.SOManualEntry.DataGridView();
             this.groupBox4 = new DevExpress.XtraEditors.GroupControl();
@@ -1702,7 +1703,8 @@ namespace TIRASnDNet.PROCESS.SO.SOManualEntry
             this.colSD30,
             this.colSD31,
             this.colSD32,
-            this.colSD33});
+            this.colSD33,
+            this.colSD34});
             this.gvSalesDetail.GridControl = this.dgvSalesDetail;
             this.gvSalesDetail.HorzScrollVisibility = DevExpress.XtraGrid.Views.Base.ScrollVisibility.Always;
             this.gvSalesDetail.IndicatorWidth = 40;
@@ -1943,6 +1945,16 @@ namespace TIRASnDNet.PROCESS.SO.SOManualEntry
             this.colSD33.Caption = "Batch";
             this.colSD33.FieldName = "prd_batch";
             this.colSD33.Name = "colSD33";
+            //
+            // colSD34
+            //
+            this.colSD34.Caption = " ";
+            this.colSD34.FieldName = "batch_btn";
+            this.colSD34.Name = "colSD34";
+            this.colSD34.OptionsColumn.FixedWidth = true;
+            this.colSD34.Visible = true;
+            this.colSD34.VisibleIndex = 33;
+            this.colSD34.Width = 30;
             this.colSD33.Visible = true;
             this.colSD33.VisibleIndex = 11;
             this.colSD33.Width = 90;
@@ -4500,6 +4512,7 @@ namespace TIRASnDNet.PROCESS.SO.SOManualEntry
         private DevExpress.XtraGrid.Columns.GridColumn colSD31;
         private DevExpress.XtraGrid.Columns.GridColumn colSD32;
         private DevExpress.XtraGrid.Columns.GridColumn colSD33;
+        private DevExpress.XtraGrid.Columns.GridColumn colSD34;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;

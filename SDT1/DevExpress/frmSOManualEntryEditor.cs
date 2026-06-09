@@ -63,31 +63,33 @@ namespace TIRASnDNet.PROCESS.SO.SOManualEntry
         private const string COL_TGL_PRICE = "tgl_price";
         private const string COL_IS_SUBS = "wsd_is_subs";
         private const string COL_BATCH = "prd_batch";
+        private const string COL_BATCH_BTN = "batch_btn";
 
-        // DevExpress validation provider untuk mandatory field.
-        // MessageBox lama tetap dipertahankan; ini hanya menambahkan tanda merah di form.
-        private DXErrorProvider dxErrorProvider1;
+        // DevExpress validation provider untuk mandatory field & validasi duplikat.
+        // Dibuat di kode (lazy) agar tidak perlu ubah Designer.
+        // MessageBox lama tetap dipertahankan; ini menambahkan tanda merah di form.
+        private DXErrorProvider dxErrValSO;
 
         private void InitValidationProvider()
         {
-            if (dxErrorProvider1 == null)
+            if (dxErrValSO == null)
             {
-                dxErrorProvider1 = new DXErrorProvider();
-                dxErrorProvider1.ContainerControl = this;
+                dxErrValSO = new DXErrorProvider();
+                dxErrValSO.ContainerControl = this;
             }
         }
 
         private void ClearFormValidationErrors()
         {
             InitValidationProvider();
-            dxErrorProvider1.ClearErrors();
+            dxErrValSO.ClearErrors();
         }
 
         private void SetControlError(Control control, string message)
         {
             InitValidationProvider();
             if (control != null)
-                dxErrorProvider1.SetError(control, message);
+                dxErrValSO.SetError(control, message);
         }
 
         private bool IsEmptyControl(Control control)
@@ -172,6 +174,30 @@ namespace TIRASnDNet.PROCESS.SO.SOManualEntry
             return string.Empty;
         }
 
+        private string GetFirstDuplicateBatchMessage()
+        {
+            if (dgvSalesDetail == null || dgvSalesDetail.Rows == null)
+                return string.Empty;
+
+            for (int i = 0; i < dgvSalesDetail.Rows.Count; i++)
+            {
+                string p = SafeCellValue(dgvSalesDetail.Rows[i], COL_PCODE);
+                if (string.IsNullOrWhiteSpace(p)) continue;
+                string b = SafeCellValue(dgvSalesDetail.Rows[i], COL_BATCH);
+
+                for (int j = i + 1; j < dgvSalesDetail.Rows.Count; j++)
+                {
+                    string p2 = SafeCellValue(dgvSalesDetail.Rows[j], COL_PCODE);
+                    if (string.IsNullOrWhiteSpace(p2)) continue;
+                    string b2 = SafeCellValue(dgvSalesDetail.Rows[j], COL_BATCH);
+                    if (p == p2 && b == b2)
+                        return "Product " + p + " dengan Batch yang sama tidak boleh dobel";
+                }
+            }
+
+            return string.Empty;
+        }
+
         private void MarkMandatoryValidationErrors()
         {
             ClearFormValidationErrors();
@@ -200,6 +226,10 @@ namespace TIRASnDNet.PROCESS.SO.SOManualEntry
             string reasonMessage = GetFirstInvalidReasonMessage();
             if (!string.IsNullOrWhiteSpace(reasonMessage))
                 SetControlError(dgvSalesDetail, reasonMessage);
+
+            string dupBatchMessage = GetFirstDuplicateBatchMessage();
+            if (!string.IsNullOrWhiteSpace(dupBatchMessage))
+                SetControlError(dgvSalesDetail, dupBatchMessage);
 
             if (rbCashDiscP.Checked && !string.IsNullOrWhiteSpace(txtCashDiscP.Text))
             {
@@ -326,6 +356,8 @@ namespace TIRASnDNet.PROCESS.SO.SOManualEntry
         private RepositoryItemSearchLookUpEdit _repoReasonSearchLookUp;
         private RepositoryItemButtonEdit _repoSubsButtonEdit;
         private RepositoryItemSearchLookUpEdit _repoBatchSearchLookUp;
+        private bool _batchPopupBusy = false;
+        private bool _batchValueReverting = false;
         private DataTable _dtReasonSearchLookUp;
         private bool _isReasonSearchLookUpHooked = false;
         private bool _isSubsSearchLookUpHooked = false;
@@ -3104,7 +3136,7 @@ namespace TIRASnDNet.PROCESS.SO.SOManualEntry
                     dtFillC = _clsGlobal.ExecDT(strSQL);
                     if (dtFillC.Rows.Count > 0)
                     {
-                        if (pCheckValue(dtFillC.Rows[0].ToString(), dgvSalesDetail.Rows.Count, dgvSalesDetail) == true)
+                        if (!IsProductBatchDuplicate(dtFillC.Rows[0].ToString(), Convert.ToString(dgvSalesDetail.Rows[row].Cells[COL_BATCH].Value), row))
                         {
                             if (isNefoKAM)
                             {
@@ -3116,7 +3148,7 @@ namespace TIRASnDNet.PROCESS.SO.SOManualEntry
 
                             }
 
-
+                            ClearFormValidationErrors();
                             dgvSalesDetail.Rows[row].Cells["wsd_prd_master_code"].Value = dtFillC.Rows[0].ToString();
                             dgvSalesDetail.Rows[row].Cells["wsd_grade"].Value = dtFillC.Rows[3].ToString();
                             dgvSalesDetail.Rows[row].Cells["wsd_prd_size"].Value = dtFillC.Rows[4].ToString();
@@ -3130,7 +3162,8 @@ namespace TIRASnDNet.PROCESS.SO.SOManualEntry
                         }
                         else
                         {
-                            MessageBox.Show("Data sudah ada", clsGlobal.APP_MSG_CAPTION, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            MessageBox.Show("Product dengan Batch yang sama sudah ada", clsGlobal.APP_MSG_CAPTION, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            SetControlError(dgvSalesDetail, "Product dengan Batch yang sama sudah ada");
                             dgvSalesDetail.Rows[row].Cells["wsd_prd_master_code"].Value = "";
                             dgvSalesDetail.Rows[row].Cells["wsd_grade"].Value = "";
                             dgvSalesDetail.Rows[row].Cells["wsd_prd_size"].Value = "";
@@ -4054,8 +4087,9 @@ namespace TIRASnDNet.PROCESS.SO.SOManualEntry
                         }
 
 
-                        if (pCheckValue(frm.ArrField[0].Trim(), dgvSalesDetail.Rows.Count - 1, dgvSalesDetail) == true)
+                        if (!IsProductBatchDuplicate(frm.ArrField[0].Trim(), Convert.ToString(dgvSalesDetail.Rows[row].Cells[COL_BATCH].Value), row))
                         {
+                            ClearFormValidationErrors();
                             dgvSalesDetail.Rows[row].Cells["wsd_prd_master_code"].Value = frm.ArrField[0].Trim();
                             dgvSalesDetail.Rows[row].Cells["wsd_grade"].Value = frm.ArrField[3].Trim();
                             dgvSalesDetail.Rows[row].Cells["wsd_prd_size"].Value = frm.ArrField[4].Trim();
@@ -4070,7 +4104,8 @@ namespace TIRASnDNet.PROCESS.SO.SOManualEntry
                         }
                         else
                         {
-                            MessageBox.Show("Data sudah ada", clsGlobal.APP_MSG_CAPTION, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            MessageBox.Show("Product dengan Batch yang sama sudah ada", clsGlobal.APP_MSG_CAPTION, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            SetControlError(dgvSalesDetail, "Product dengan Batch yang sama sudah ada");
                             dgvSalesDetail.Rows[row].Cells["wsd_prd_master_code"].Value = "";
                             dgvSalesDetail.Rows[row].Cells["wsd_grade"].Value = "";
                             dgvSalesDetail.Rows[row].Cells["wsd_prd_size"].Value = "";
@@ -4686,7 +4721,7 @@ namespace TIRASnDNet.PROCESS.SO.SOManualEntry
                                 }
                             }
                         }
-                        if (pCheckValue(dgvSalesDetail.Rows[row].Cells["wsd_prd_master_code"].Value.ToString(), row, dgvSalesDetail) == true)
+                        if (!IsProductBatchDuplicate(dgvSalesDetail.Rows[row].Cells["wsd_prd_master_code"].Value.ToString(), Convert.ToString(dgvSalesDetail.Rows[row].Cells[COL_BATCH].Value), row))
                         {
                             if (isNefoKAM)
                             {
@@ -4697,6 +4732,7 @@ namespace TIRASnDNet.PROCESS.SO.SOManualEntry
                                 }
 
                             }
+                            ClearFormValidationErrors();
                             //dgvSalesDetail.Rows[row].Cells["wsd_prd_master_code"].Value = dtFill3.Rows[0]["ot_def_oprtype"].ToString().Trim();
                             dgvSalesDetail.Rows[row].Cells["wsd_grade"].Value = dtFill3.Rows[0]["GradeS"].ToString().Trim();
                             dgvSalesDetail.Rows[row].Cells["wsd_prd_size"].Value = dtFill3.Rows[0]["SizeS"].ToString().Trim();
@@ -4722,7 +4758,8 @@ namespace TIRASnDNet.PROCESS.SO.SOManualEntry
                         }
                         else
                         {
-                            MessageBox.Show("Data sudah ada", clsGlobal.APP_MSG_CAPTION, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            MessageBox.Show("Product dengan Batch yang sama sudah ada", clsGlobal.APP_MSG_CAPTION, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            SetControlError(dgvSalesDetail, "Product dengan Batch yang sama sudah ada");
                             dgvSalesDetail.Rows[row].Cells["wsd_prd_master_code"].Value = "";
                             dgvSalesDetail.Rows[row].Cells["wsd_grade"].Value = "";
                             dgvSalesDetail.Rows[row].Cells["wsd_prd_size"].Value = "";
@@ -5683,9 +5720,10 @@ ORDER BY reason";
             return (_clsGlobal.Connect.State == ConnectionState.Closed) ? _clsGlobal.ExecDT(sql) : _clsGlobal.ExecDTTrans(sql);
         }
 
-        // Kolom "Batch" (prd_batch): read-only, hanya bisa diisi lewat SearchLookUpEdit.
-        // Sumber data IM_MST_BATCH difilter sesuai produk baris (kode/grade/size), gaya
-        // tampilan mengikuti search lookup Branch di header.
+        // Kolom Batch (prd_batch) tampil read-only. Kolom terpisah "batch_btn" (colSD34 di Designer)
+        // memakai SearchLookUpEdit DevExpress - dropdown grid seperti "Ship to Party". Popup dibuka
+        // eksplisit dari dgvSalesDetail_CellClick (ShowEditor + ShowPopup) karena editor in-place di
+        // grid shim ini tidak buka sendiri; nilai terpilih disalin ke prd_batch via EditValueChanged.
         private void EnsureBatchSearchLookUpEditor()
         {
             try
@@ -5694,53 +5732,68 @@ ORDER BY reason";
                 if (view == null) return;
 
                 GridColumn batchColumn = view.Columns.ColumnByFieldName(COL_BATCH) ?? view.Columns[COL_BATCH];
-                if (batchColumn == null) return;
+
+                // Kolom tombol terpisah tidak dipakai lagi -> sembunyikan, supaya header batch jadi 1 saja.
+                GridColumn btnColumn = view.Columns.ColumnByFieldName(COL_BATCH_BTN);
+                if (btnColumn != null)
+                {
+                    btnColumn.Visible = false;
+                    btnColumn.ColumnEdit = null;
+                }
 
                 if (_repoBatchSearchLookUp == null)
                 {
                     _repoBatchSearchLookUp = new RepositoryItemSearchLookUpEdit();
                     _repoBatchSearchLookUp.Name = "repoBatchSearchLookUp";
+                    // DisableTextEditor: nilai batch tetap tampil di kolom, tapi tidak bisa diketik manual.
                     _repoBatchSearchLookUp.NullText = "";
+                    _repoBatchSearchLookUp.TextEditStyle = TextEditStyles.DisableTextEditor;
+                    _repoBatchSearchLookUp.ShowDropDown = ShowDropDown.SingleClick;
+                    _repoBatchSearchLookUp.PopupFormSize = new Size(650, 350);
                     _repoBatchSearchLookUp.Buttons.Clear();
                     _repoBatchSearchLookUp.Buttons.Add(new EditorButton(ButtonPredefines.Search) { ToolTip = "Search Batch" });
                     _repoBatchSearchLookUp.DisplayMember = "mb_batch_id";
                     _repoBatchSearchLookUp.ValueMember = "mb_batch_id";
-                    // DisableTextEditor: nilai hanya bisa dipilih dari lookup (tidak bisa diketik).
-                    _repoBatchSearchLookUp.TextEditStyle = TextEditStyles.DisableTextEditor;
-                    _repoBatchSearchLookUp.PopupFilterMode = PopupFilterMode.Contains;
-                    _repoBatchSearchLookUp.ImmediatePopup = true;
-                    _repoBatchSearchLookUp.PopupFormSize = new Size(620, 320);
 
-                    GridView batchView = new GridView();
-                    batchView.OptionsView.ShowGroupPanel = false;
-                    batchView.OptionsView.ShowIndicator = false;
-                    batchView.OptionsView.ColumnAutoWidth = false;
-                    batchView.FocusRectStyle = DevExpress.XtraGrid.Views.Grid.DrawFocusRectStyle.RowFocus;
-                    batchView.OptionsSelection.EnableAppearanceFocusedCell = false;
-                    _repoBatchSearchLookUp.View = batchView;
+                    GridView popupView = new GridView();
+                    popupView.OptionsView.ShowGroupPanel = false;
+                    popupView.OptionsView.ColumnAutoWidth = false;
+                    popupView.OptionsView.ShowIndicator = false;
+                    popupView.FocusRectStyle = DevExpress.XtraGrid.Views.Grid.DrawFocusRectStyle.RowFocus;
+                    popupView.OptionsSelection.EnableAppearanceFocusedCell = false;
+                    _repoBatchSearchLookUp.View = popupView;
+
+                    _repoBatchSearchLookUp.EditValueChanged -= RepoBatchSearchLookUp_EditValueChanged;
+                    _repoBatchSearchLookUp.EditValueChanged += RepoBatchSearchLookUp_EditValueChanged;
+
+                    // Muat data tiap kali dropdown akan dibuka (apa pun pemicunya: klik/F4/tombol).
+                    // Ini jaminan GetBatchLookup pasti jalan, beda dengan mengandalkan CellClick.
+                    _repoBatchSearchLookUp.QueryPopUp -= RepoBatchSearchLookUp_QueryPopUp;
+                    _repoBatchSearchLookUp.QueryPopUp += RepoBatchSearchLookUp_QueryPopUp;
                 }
-
                 if (!dgvSalesDetail.RepositoryItems.Contains(_repoBatchSearchLookUp))
                     dgvSalesDetail.RepositoryItems.Add(_repoBatchSearchLookUp);
 
-                batchColumn.ColumnEdit = _repoBatchSearchLookUp;
-                batchColumn.OptionsColumn.AllowEdit = true;
-                batchColumn.OptionsColumn.ReadOnly = false;
-                // Tampilkan icon search secara permanen pada kolom (seperti tab Partner Function),
-                // bukan hanya saat sel di-fokus/masuk mode edit.
-                batchColumn.ShowButtonMode = DevExpress.XtraGrid.Views.Base.ShowButtonModeEnum.ShowAlways;
+                // Editor SearchLookUpEdit dipasang langsung ke kolom prd_batch (header tunggal "Batch").
+                if (batchColumn != null)
+                {
+                    batchColumn.ColumnEdit = _repoBatchSearchLookUp;
+                    batchColumn.Caption = "Batch";
+                    batchColumn.OptionsColumn.ShowCaption = true;
+                    batchColumn.OptionsColumn.AllowEdit = true;
+                    batchColumn.OptionsColumn.ReadOnly = false;
+                    batchColumn.OptionsColumn.AllowFocus = true;
+                    batchColumn.ShowButtonMode = DevExpress.XtraGrid.Views.Base.ShowButtonModeEnum.ShowAlways;
+                }
 
                 ConfigureBatchPopupColumns();
 
-                if (!_isBatchSearchLookUpHooked)
-                {
-                    view.ShowingEditor += SalesDetailView_ShowingEditorBatch;
-                    _repoBatchSearchLookUp.QueryPopUp += RepoBatchSearchLookUp_QueryPopUp;
-                    // Tombol Search adalah button kustom -> tidak otomatis membuka popup.
-                    // Buka popup secara eksplisit saat icon search di-klik.
-                    _repoBatchSearchLookUp.ButtonClick += RepoBatchSearchLookUp_ButtonClick;
-                    _isBatchSearchLookUpHooked = true;
-                }
+                // Tampilkan nilai batch apa adanya walau sel tidak fokus (tanpa hook ini sel tampak blank
+                // karena LookUpEdit gagal me-resolve nilai ke DataSource yang baru diisi saat popup dibuka).
+                view.CustomColumnDisplayText -= GvSalesDetail_BatchCustomColumnDisplayText;
+                view.CustomColumnDisplayText += GvSalesDetail_BatchCustomColumnDisplayText;
+
+                _isBatchSearchLookUpHooked = true;
             }
             catch (Exception ex)
             {
@@ -5754,74 +5807,152 @@ ORDER BY reason";
             if (popupView == null) return;
 
             popupView.Columns.Clear();
+            popupView.Columns.AddVisible("mb_batch_id", "Batch");
             popupView.Columns.AddVisible("mb_prd_code", "Product");
             popupView.Columns.AddVisible("mb_prd_grade", "Grade");
             popupView.Columns.AddVisible("mb_prd_size", "Size");
-            popupView.Columns.AddVisible("mb_batch_id", "Batch");
             popupView.Columns.AddVisible("mb_exp_date", "Exp Date");
             popupView.BestFitColumns();
         }
 
-        private void SalesDetailView_ShowingEditorBatch(object sender, CancelEventArgs e)
+        // Buka dropdown SearchLookUpEdit batch untuk baris terpilih (dipanggil dari CellClick).
+        private void OpenBatchSearchLookup(int rowIndex)
         {
+            if (_batchPopupBusy) return;
             try
             {
-                GridView view = sender as GridView;
-                if (view == null || view.FocusedColumn == null) return;
+                _batchPopupBusy = true;
 
-                if (!string.Equals(view.FocusedColumn.FieldName, COL_BATCH, StringComparison.OrdinalIgnoreCase))
+                GridView view = GetGridView(dgvSalesDetail);
+                if (view == null || rowIndex < 0) return;
+
+                if (!IsBatchAllowed(rowIndex))
+                {
+                    MessageBox.Show("Isi Product terlebih dahulu sebelum memilih Batch.", clsGlobal.APP_MSG_CAPTION, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     return;
+                }
 
-                if (!IsBatchAllowed(view.FocusedRowHandle))
-                    e.Cancel = true;
+                EnsureBatchSearchLookUpEditor();
+
+                // Data dimuat di RepoBatchSearchLookUp_QueryPopUp (dipanggil saat popup dibuka),
+                // jadi di sini cukup fokuskan sel batch lalu buka editor + popup-nya.
+                GridColumn batchColumn = view.Columns.ColumnByFieldName(COL_BATCH);
+                view.FocusedRowHandle = rowIndex;
+                if (batchColumn != null) view.FocusedColumn = batchColumn;
+                view.ShowEditor();
+
+                DevExpress.XtraEditors.SearchLookUpEdit editor = view.ActiveEditor as DevExpress.XtraEditors.SearchLookUpEdit;
+                if (editor != null && !editor.IsPopupOpen)
+                    editor.ShowPopup();
             }
-            catch
+            catch (Exception ex)
             {
-                e.Cancel = true;
+                MessageBox.Show(ex.Message, clsGlobal.APP_MSG_CAPTION, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            finally
+            {
+                _batchPopupBusy = false;
             }
         }
 
-        private void RepoBatchSearchLookUp_QueryPopUp(object sender, CancelEventArgs e)
+        // Pastikan nilai prd_batch selalu tampil (browse mode), bukan blank.
+        private void GvSalesDetail_BatchCustomColumnDisplayText(object sender, DevExpress.XtraGrid.Views.Base.CustomColumnDisplayTextEventArgs e)
+        {
+            if (e.Column != null && e.Column.FieldName == COL_BATCH)
+            {
+                string v = Convert.ToString(e.Value);
+                if (!string.IsNullOrEmpty(v)) e.DisplayText = v;
+            }
+        }
+
+        // Dipanggil tepat sebelum dropdown SearchLookUpEdit batch dibuka.
+        // Memuat data IM_MST_BATCH untuk baris yang sedang fokus -> dropdown pasti terisi.
+        private void RepoBatchSearchLookUp_QueryPopUp(object sender, System.ComponentModel.CancelEventArgs e)
         {
             try
             {
+                DevExpress.XtraEditors.SearchLookUpEdit editor = sender as DevExpress.XtraEditors.SearchLookUpEdit;
+                if (editor == null) return;
+
                 GridView view = GetGridView(dgvSalesDetail);
                 if (view == null) return;
 
                 int rowHandle = view.FocusedRowHandle;
-                if (!IsBatchAllowed(rowHandle))
+                if (rowHandle < 0) return;
+
+                string pcode = Convert.ToString(view.GetRowCellValue(rowHandle, COL_PCODE));
+                if (string.IsNullOrWhiteSpace(pcode))
                 {
+                    // Product belum diisi -> batalkan popup, kasih info.
                     e.Cancel = true;
+                    MessageBox.Show("Isi Product terlebih dahulu sebelum memilih Batch.", clsGlobal.APP_MSG_CAPTION, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     return;
                 }
 
-                string pcode = Convert.ToString(view.GetRowCellValue(rowHandle, COL_PCODE));
                 string grade = Convert.ToString(view.GetRowCellValue(rowHandle, "wsd_grade"));
                 string size = Convert.ToString(view.GetRowCellValue(rowHandle, "wsd_prd_size"));
-                _repoBatchSearchLookUp.DataSource = GetBatchLookup(pcode, grade, size);
-                ConfigureBatchPopupColumns();
+
+                DataTable dtBatch = GetBatchLookup(pcode, grade, size);
+
+                editor.Properties.DisplayMember = "mb_batch_id";
+                editor.Properties.ValueMember = "mb_batch_id";
+                editor.Properties.DataSource = dtBatch;
+
+                GridView popupView = editor.Properties.View;
+                if (popupView != null && popupView.Columns.Count == 0)
+                {
+                    popupView.OptionsView.ShowGroupPanel = false;
+                    popupView.OptionsView.ColumnAutoWidth = false;
+                    popupView.Columns.Clear();
+                    popupView.Columns.AddVisible("mb_batch_id", "Batch");
+                    popupView.Columns.AddVisible("mb_prd_code", "Product");
+                    popupView.Columns.AddVisible("mb_prd_grade", "Grade");
+                    popupView.Columns.AddVisible("mb_prd_size", "Size");
+                    popupView.Columns.AddVisible("mb_exp_date", "Exp Date");
+                }
+                if (popupView != null) popupView.BestFitColumns();
             }
-            catch
+            catch (Exception ex)
             {
-                e.Cancel = true;
+                MessageBox.Show(ex.Message, clsGlobal.APP_MSG_CAPTION, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void RepoBatchSearchLookUp_ButtonClick(object sender, ButtonPressedEventArgs e)
+        // Saat batch dipilih dari dropdown, salin nilai (mb_batch_id) ke kolom prd_batch baris aktif.
+        private void RepoBatchSearchLookUp_EditValueChanged(object sender, EventArgs e)
         {
             try
             {
-                if (e.Button == null || e.Button.Kind != ButtonPredefines.Search)
-                    return;
+                DevExpress.XtraEditors.BaseEdit edit = sender as DevExpress.XtraEditors.BaseEdit;
+                if (edit == null) return;
+
+                string batch = Convert.ToString(edit.EditValue);
+                if (string.IsNullOrEmpty(batch)) return;
 
                 GridView view = GetGridView(dgvSalesDetail);
                 if (view == null) return;
-                if (!IsBatchAllowed(view.FocusedRowHandle))
-                    return;
 
-                DevExpress.XtraEditors.SearchLookUpEdit edit = sender as DevExpress.XtraEditors.SearchLookUpEdit;
-                if (edit != null)
-                    edit.ShowPopup();
+                int rowHandle = view.FocusedRowHandle;
+                if (rowHandle < 0) return;
+
+                string pcode = Convert.ToString(view.GetRowCellValue(rowHandle, COL_PCODE));
+                if (IsProductBatchDuplicate(pcode, batch, rowHandle))
+                {
+                    // Product + Batch yang sama sudah ada di baris lain -> tolak.
+                    MessageBox.Show("Product " + pcode + " dengan Batch " + batch + " sudah ada di baris lain.", clsGlobal.APP_MSG_CAPTION, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    SetControlError(dgvSalesDetail, "Product dengan Batch yang sama sudah ada");
+                    if (!_batchValueReverting)
+                    {
+                        _batchValueReverting = true;
+                        try { edit.EditValue = null; } catch { }
+                        _batchValueReverting = false;
+                    }
+                    view.SetRowCellValue(rowHandle, COL_BATCH, "");
+                    return;
+                }
+
+                ClearFormValidationErrors();
+                view.SetRowCellValue(rowHandle, COL_BATCH, batch);
             }
             catch
             {
@@ -5896,6 +6027,8 @@ ORDER BY reason";
             dtGridSODetail.Columns[COL_IS_SUBS].DefaultValue = "N";
             dtGridSODetail.Columns.Add(COL_BATCH, typeof(string));
             dtGridSODetail.Columns[COL_BATCH].DefaultValue = "";
+            dtGridSODetail.Columns.Add(COL_BATCH_BTN, typeof(string));
+            dtGridSODetail.Columns[COL_BATCH_BTN].DefaultValue = "";
             dgv.UseDesignTimeColumns = true;
             dgv.DataSource = dtGridSODetail;
 
@@ -9143,6 +9276,14 @@ ORDER BY reason";
 
 
 
+                }
+
+                // Validasi Product + Batch tidak boleh dobel (product sama batch beda diizinkan).
+                string dupBatchMsg = GetFirstDuplicateBatchMessage();
+                if (!string.IsNullOrWhiteSpace(dupBatchMsg))
+                {
+                    MessageBox.Show(dupBatchMsg, clsGlobal.APP_MSG_CAPTION, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    keyFound = false;
                 }
 
             }
@@ -12772,6 +12913,26 @@ ORDER BY reason";
             }
         }
 
+        // True jika ada baris LAIN dengan Product + Batch yang sama.
+        // Product sama tapi batch beda -> bukan duplikat (diizinkan).
+        private bool IsProductBatchDuplicate(string pcode, string batch, int excludeRow)
+        {
+            if (string.IsNullOrEmpty(pcode)) return false;
+            string b1 = Convert.ToString(batch);
+            for (int i = 0; i < dgvSalesDetail.Rows.Count; i++)
+            {
+                if (i == excludeRow) continue;
+                string p = Convert.ToString(dgvSalesDetail.Rows[i].Cells[COL_PCODE].Value);
+                if (string.IsNullOrEmpty(p)) continue;
+                if (p == pcode)
+                {
+                    string b2 = Convert.ToString(dgvSalesDetail.Rows[i].Cells[COL_BATCH].Value);
+                    if (b2 == b1) return true;
+                }
+            }
+            return false;
+        }
+
         private bool pCheckValue(string sValue, int iIndex, DataGridView dgv)
         {
             bool keyFound = true;
@@ -13002,6 +13163,11 @@ ORDER BY reason";
 
         private void dgvSalesDetail_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
+            // Jangan tutup editor untuk kolom Batch, agar dropdown SearchLookUpEdit tidak
+            // langsung tertutup tepat setelah dibuka.
+            if (IsGridColumn(dgvSalesDetail, e, COL_BATCH))
+                return;
+
             if (dgvSalesDetail.CurrentCell == null)
             {
                 return;
