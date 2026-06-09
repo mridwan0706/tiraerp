@@ -63,9 +63,6 @@ namespace TIRASnDNet.AR.ARCustMaster
         TIRAData<TIRAItem> __outlet_status = null;
 
         bool __isAutoTunai = false;
-        bool __isFlagKAM = false;
-        bool __isFlagDC = false;
-
         TIRAData<TiraPhoto> photoExist = null;
         PhotoItem nik = null;
         PhotoItem npwp = null;
@@ -81,6 +78,7 @@ namespace TIRASnDNet.AR.ARCustMaster
         private DevExpress.XtraEditors.Repository.RepositoryItemButtonEdit _groupHargaButtonRepository = null;
         private DevExpress.XtraEditors.Repository.RepositoryItemButtonEdit _taxCodeButtonRepository = null;
         private DevExpress.XtraEditors.Repository.RepositoryItemButtonEdit _gridSearchButtonRepository = null;
+        private DevExpress.XtraEditors.Repository.RepositoryItemSearchLookUpEdit _partnerCodeSearchLookupRepository = null;
         private DevExpress.XtraEditors.Repository.RepositoryItemSearchLookUpEdit _partnerShipToSearchLookupRepository = null;
         private DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit _partnerDefaultCheckRepository = null;
 
@@ -271,6 +269,17 @@ namespace TIRASnDNet.AR.ARCustMaster
             }
         }
 
+        private void checkBoxPODRelevant_CheckedChanged(object sender, EventArgs e)
+        {
+            SetPodRelevantCaption();
+        }
+
+        private void SetPodRelevantCaption()
+        {
+            if (checkBoxPODRelevant == null) return;
+            checkBoxPODRelevant.Text = checkBoxPODRelevant.Checked ? "Ya" : "Tidak";
+        }
+
         private void checkBoxNpwpT1_CheckedChanged(object sender, EventArgs e)
         {
             if (checkBoxNpwpT1.Checked)
@@ -433,19 +442,12 @@ namespace TIRASnDNet.AR.ARCustMaster
             try
             {
 
-                __isFlagKAM = _clsGlobal.IsNefoForKam;
-                __isFlagDC = _clsGlobal.IsNefoForDC;
-                if (!__isFlagDC)
-                {
-                    telf_DA_lbl.Text = telf_DA_lbl.Text.Replace("*", "");
-                    skill_DA_lbl.Text = skill_DA_lbl.Text.Replace("*", "");
-                }
-                pathniklbl.Visible = __isFlagDC;
-                pathnpwplbl.Visible = __isFlagDC;
-                viewnikbtn.Visible = __isFlagDC;
-                viewnpwpbtn.Visible = __isFlagDC;
-                //txtSFACustCode.Visible = __isFlagDC;
-                //label113.Visible = __isFlagDC;
+                pathniklbl.Visible = true;
+                pathnpwplbl.Visible = true;
+                viewnikbtn.Visible = true;
+                viewnpwpbtn.Visible = true;
+                //txtSFACustCode.Visible = true;
+                //label113.Visible = true;
 
                 __prdlines = new TIRAObject<TIRAItem>("SELECT pl_prd_line_code AS [Kode],pl_prd_line_desc AS [Nama] FROM IM_PRD_LINE WITH(NOLOCK)", 0)
                 {
@@ -503,9 +505,6 @@ namespace TIRASnDNet.AR.ARCustMaster
                 createTopByPrdLine();
                 if (topbyprdline_page != null)
                     topbyprdline_page.Text = "Customer by Division";
-
-                if (!__isFlagKAM)
-                    tabControl1.TabPages.Remove(topbyprdline_page);
 
                 SetGridViewSchPayD();
                 SetGridViewSchPayW();
@@ -591,8 +590,7 @@ namespace TIRASnDNet.AR.ARCustMaster
                 FillGridBackList();
                 FillGridUNBackList();
 
-                if (__isFlagKAM)
-                    FillTopByPrdLine();
+                FillTopByPrdLine();
 
                 FillCustSchPay();
                 FillPrdLineBlocking();
@@ -616,10 +614,7 @@ namespace TIRASnDNet.AR.ARCustMaster
                     CBDelivByDay.EditValue = dts.Rows[0]["cm_delivery_day"].ToString().Trim();
                     txtDurationOfDays.Text = dts.Rows[0]["cm_duration_days"].ToString().Trim();
 
-                    if (!__isFlagKAM)
-                    {
-                        txtSFACustCode.Text = dts.Rows[0]["cm_sfa_code"].ToString().Trim();
-                    }
+                    txtSFACustCode.Text = dts.Rows[0]["cm_sfa_code"].ToString().Trim();
                 }
                 else
                 {
@@ -730,6 +725,7 @@ namespace TIRASnDNet.AR.ARCustMaster
             ConfigureSchedulePaymentGridRuntime();
             ConfigurePrdLineBlockingGridRuntime();
             SetEditableGridView();
+            SetShipBillToReadOnly();
 
             this.groupBox1.Focus();
             txtCustName.Focus();
@@ -791,6 +787,33 @@ namespace TIRASnDNet.AR.ARCustMaster
                 MessageBox.Show(ex.Message);
             }
 
+            try
+            {
+                strSQL = "SELECT sog_sales_org_code, sog_sales_org_desc " +
+                    "FROM SO_SALES_ORG WITH(NOLOCK) WHERE ISNULL(sog_sales_org_active, 0) = 1 ORDER BY sog_sales_org_code";
+                comboBoxSalesOrganizationT1.Properties.DataSource = _clsGlobal.ExecDT(strSQL);
+                comboBoxSalesOrganizationT1.Properties.ValueMember = "sog_sales_org_code";
+                comboBoxSalesOrganizationT1.Properties.DisplayMember = "sog_sales_org_code";
+                comboBoxSalesOrganizationT1.Properties.NullText = "";
+                comboBoxSalesOrganizationT1.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.Standard;
+                comboBoxSalesOrganizationT1.Properties.ShowDropDown = DevExpress.XtraEditors.Controls.ShowDropDown.SingleClick;
+                comboBoxSalesOrganizationT1.Properties.Buttons.Clear();
+                comboBoxSalesOrganizationT1.Properties.Buttons.Add(new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Search) { ToolTip = "Search Sales Organization" });
+                if (comboBoxSalesOrganizationT1.Properties.View == null)
+                    comboBoxSalesOrganizationT1.Properties.View = new DevExpress.XtraGrid.Views.Grid.GridView();
+                ConfigureLookupView(comboBoxSalesOrganizationT1.Properties,
+                    new string[] { "sog_sales_org_code", "sog_sales_org_desc" },
+                    new string[] { "Code", "Description" },
+                    new int[] { 90, 240 });
+                comboBoxSalesOrganizationT1.EditValueChanged -= comboBoxSalesOrganizationT1_EditValueChanged;
+                comboBoxSalesOrganizationT1.EditValueChanged += comboBoxSalesOrganizationT1_EditValueChanged;
+                UpdateSalesOrganizationDescription();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
 
             try
             {
@@ -800,6 +823,8 @@ namespace TIRASnDNet.AR.ARCustMaster
                 CBShipnBill.Properties.ValueMember = "ghc_sequence_no";
                 CBShipnBill.Properties.DisplayMember = "ghc_function_desc";
                 CBShipnBill.Properties.NullText = "";
+                SetShipBillValue("3");
+                SetShipBillToReadOnly();
             }
             catch (Exception ex)
             {
@@ -896,14 +921,7 @@ namespace TIRASnDNet.AR.ARCustMaster
                     cbAddressChoice.Properties.ValueMember = "gh_function_code";
                     cbAddressChoice.Properties.DisplayMember = "gh_function_desc";
 
-                    if (__isFlagKAM)
-                    {
-                        cbAddressChoice.ItemIndex = 1;
-                    }
-                    else
-                    {
-                        cbAddressChoice.ItemIndex = 0;
-                    }
+                    cbAddressChoice.ItemIndex = 0;
                 }
                 catch (Exception ex)
                 {
@@ -1016,7 +1034,22 @@ namespace TIRASnDNet.AR.ARCustMaster
 
             int a = CBShipnBill.ItemIndex;
             IsiTextBill(a, txtCustCode.Text);
+            SetShipBillToReadOnly();
 
+        }
+
+        private void SetShipBillToReadOnly()
+        {
+            CBShipnBill.Properties.ReadOnly = true;
+            CBShipnBill.Enabled = false;
+            txtShiptoCustCode.Enabled = false;
+            txtShiptoCustCodeTo.Enabled = false;
+            txtBilltoCustCode.Enabled = false;
+            txtBilltoCustCodeTo.Enabled = false;
+            BTNShipcust.Enabled = false;
+            BTNBillcust.Enabled = false;
+            BTNShipcust.Visible = false;
+            BTNBillcust.Visible = false;
         }
 
         void IsiTextBill_old(int a, string val)
@@ -1260,6 +1293,7 @@ namespace TIRASnDNet.AR.ARCustMaster
         {
             txtCustNameT3.Text = txtCustName.Text;
             txtCustNameT4.Text = txtCustName.Text;
+            RefreshDefaultSoldToPartnerRow();
         }
 
         private void txtAddress1T3_TextChanged(object sender, EventArgs e)
@@ -1305,12 +1339,8 @@ namespace TIRASnDNet.AR.ARCustMaster
 
                 if (dt1.Rows.Count > 0)
                 {
-                    if (dt1.Rows[0]["cm_ship_bill_to_flag"] == DBNull.Value) throw new Exception("Field 'cm_ship_bill_to_flag' is empty.");
-                    if (dt1.Rows[0]["cm_ship_bill_to_flag"].ToString().IsNullOrEmptyOrWhiteSpace()) throw new Exception("Field 'cm_ship_bill_to_flag' is empty.");
-
-                    // CBShipnBill.EditValue = dt1.Rows[0]["cm_ship_bill_to_flag"].ToString().Trim();
-                    string shipBillFlag = Convert.ToString(dt1.Rows[0]["cm_ship_bill_to_flag"]).Trim();
-                    SetShipBillValue(shipBillFlag);
+                    SetShipBillValue("3");
+                    SetShipBillToReadOnly();
 
 
 
@@ -1320,11 +1350,6 @@ namespace TIRASnDNet.AR.ARCustMaster
                     txtCustName.Text = dt1.Rows[0]["cm_cust_name"].ToString().Trim();
                     txtShortName.Text = dt1.Rows[0]["cm_cust_short_name"].ToString().Trim();
                     txtBarcode.Text = dt1.Rows[0]["cm_barcode_code"].ToString().Trim();
-
-                    //if (__isFlagDC)
-                    //{
-                    //    txtSFACustCode.Text = dt1.Rows[0]["cm_sfa_code"].ToString().Trim();
-                    //}
 
                     //txtstatus.Text = dt1.Rows[0]["cm_cust_status"].ToString().Trim();
                     //if (__isAsk30724)
@@ -1396,7 +1421,10 @@ namespace TIRASnDNet.AR.ARCustMaster
                     txtShiptoCustCodeTo.Text = shipCode2;
                     txtBilltoCustCode.Text = billConde1;
                     txtBilltoCustCodeTo.Text = billConde2;
-                    LoadPodRelevantFlag();
+                    checkBoxPODRelevant.Checked = GetDataRowValue(dt1.Rows[0], "cm_pod_relevant_flag", "N").Equals("Y", StringComparison.OrdinalIgnoreCase);
+                    SetPodRelevantCaption();
+                    comboBoxSalesOrganizationT1.EditValue = GetDataRowValue(dt1.Rows[0], "cm_slsorg", string.Empty);
+                    UpdateSalesOrganizationDescription();
 
                     txtLeadtime.Text = dt1.Rows[0]["cm_lead_time"].ToString().Trim();
 
@@ -1654,14 +1682,7 @@ namespace TIRASnDNet.AR.ARCustMaster
                     {
                         if (string.IsNullOrEmpty(dt1.Rows[0]["cm_tax_address_choice"].ToString().Trim()))
                         {
-                            if (__isFlagKAM)
-                            {
-                                cbAddressChoice.ItemIndex = 1;
-                            }
-                            else
-                            {
-                                cbAddressChoice.ItemIndex = 0;
-                            }
+                            cbAddressChoice.ItemIndex = 0;
                         }
                         else
                         {
@@ -2539,6 +2560,7 @@ namespace TIRASnDNet.AR.ARCustMaster
                 AddRequiredRule(ctrlKodepasarDesc.txtKodePasarT1, tabPage1, "Pasar wajib diisi.");
 
             AddRequiredRule(CBBagunanT1, tabPage1, "Bangunan wajib dipilih.");
+            AddRequiredRule(comboBoxSalesOrganizationT1, tabPage1, "Sales Organization wajib dipilih.");
 
             // Cust Property Tax
             AddMinLengthRequiredRule(txtAddress1T2, tabPage2, 20, "Address 1 Cust Property wajib diisi minimal 20 karakter.");
@@ -3064,38 +3086,50 @@ namespace TIRASnDNet.AR.ARCustMaster
             return checkBoxPODRelevant != null && checkBoxPODRelevant.Checked ? "Y" : "N";
         }
 
-        private void LoadPodRelevantFlag()
+        private string GetSalesOrganizationCode()
         {
-            try
-            {
-                if (checkBoxPODRelevant == null) return;
-                string query = "SELECT ISNULL(cm_pod_relevant_flag, 'N') AS cm_pod_relevant_flag FROM SO_CUST_MASTER WITH(NOLOCK) WHERE cm_entity = " + FmtStr(ctrlEntityCustMaster2.txtCM.Text.Trim()) +
-                    " AND cm_branch = " + FmtStr(ctrlEntityCustMaster2.txtBranchIdCM.Text.Trim()) +
-                    " AND cm_cust_code1 = " + FmtStr(txtCustCode.Text.Trim()) +
-                    " AND cm_cust_code2 = " + FmtStr(txtCustCodeTo.Text.Trim());
-                DataTable dt = _clsGlobal.ExecDT(query);
-                checkBoxPODRelevant.Checked = dt.Rows.Count > 0 && dt.Rows[0]["cm_pod_relevant_flag"].ToString().Trim().Equals("Y", StringComparison.OrdinalIgnoreCase);
-            }
-            catch
-            {
-                if (checkBoxPODRelevant != null) checkBoxPODRelevant.Checked = false;
-            }
+            return comboBoxSalesOrganizationT1 == null ? string.Empty : GetEditValueText(comboBoxSalesOrganizationT1);
         }
 
-        private void UpdateCustomerMasterEnhancementFlagsTrans()
+        private void comboBoxSalesOrganizationT1_EditValueChanged(object sender, EventArgs e)
         {
-            string sql = "IF COL_LENGTH('dbo.SO_CUST_MASTER','cm_pod_relevant_flag') IS NOT NULL " +
-                "UPDATE dbo.SO_CUST_MASTER SET cm_pod_relevant_flag = " + FmtStr(GetPodRelevantFlag()) +
-                " WHERE cm_entity = " + FmtStr(ctrlEntityCustMaster2.txtCM.Text.Trim()) +
-                " AND cm_branch = " + FmtStr(ctrlEntityCustMaster2.txtBranchIdCM.Text.Trim()) +
-                " AND cm_cust_code1 = " + FmtStr(txtCustCode.Text.Trim()) +
-                " AND cm_cust_code2 = " + FmtStr(txtCustCodeTo.Text.Trim());
-            _clsGlobal.ExecuteTrans(sql);
+            UpdateSalesOrganizationDescription();
+        }
+
+        private void UpdateSalesOrganizationDescription()
+        {
+            if (txtSalesOrganizationDescT1 == null) return;
+
+            txtSalesOrganizationDescT1.Text = string.Empty;
+            if (comboBoxSalesOrganizationT1 == null || comboBoxSalesOrganizationT1.Properties.DataSource == null) return;
+
+            string code = GetSalesOrganizationCode();
+            if (string.IsNullOrWhiteSpace(code)) return;
+
+            DataTable source = comboBoxSalesOrganizationT1.Properties.DataSource as DataTable;
+            if (source == null) return;
+
+            DataRow row = source.Rows.Cast<DataRow>()
+                .FirstOrDefault(r => string.Equals(Convert.ToString(r["sog_sales_org_code"]).Trim(), code, StringComparison.OrdinalIgnoreCase));
+            if (row != null)
+                txtSalesOrganizationDescT1.Text = Convert.ToString(row["sog_sales_org_desc"]).Trim();
+        }
+
+        private string GetDataRowValue(DataRow row, string columnName, string defaultValue)
+        {
+            if (row == null || row.Table == null || !row.Table.Columns.Contains(columnName) || row[columnName] == DBNull.Value)
+                return defaultValue;
+
+            return row[columnName].ToString().Trim();
         }
 
         private void btnOk_Click(object sender, EventArgs e)
         {
             if (!ValidateCustomerForm())
+                return;
+
+            SyncShipBillPartyFromPartnerFunction();
+            if (!ValidatePartnerFunctionDefaults())
                 return;
 
             if (txtDelivByDays.Text.Trim() == "0")
@@ -3841,13 +3875,13 @@ namespace TIRASnDNet.AR.ARCustMaster
                 return;
             }
 
-            if (__isFlagDC && skillidcodetb.Text.IsNullOrEmptyOrWhiteSpace())
+            if (skillidcodetb.Text.IsNullOrEmptyOrWhiteSpace())
             {
                 ShowValidationError(skillidcodetb, " Skill ID harus diisi!");
                 return;
             }
 
-            if (__isFlagDC && txtTelephoneT4.Text.IsNullOrEmptyOrWhiteSpace())
+            if (txtTelephoneT4.Text.IsNullOrEmptyOrWhiteSpace())
             {
                 ShowValidationError(txtTelephoneT4, " Telephone Delivery Address harus diisi!");
                 return;
@@ -4442,13 +4476,12 @@ namespace TIRASnDNet.AR.ARCustMaster
                         strSQL = strSQL + "'N'"; //cm_dear_notification
                     }
 
-                    if (!string.IsNullOrWhiteSpace(txtDurationOfDays.Text.Trim()))
-                    {
-                        strSQL = strSQL + "," + txtDurationOfDays.Text.Trim();
-                    }
+                    strSQL += "," + (!string.IsNullOrWhiteSpace(txtDurationOfDays.Text.Trim()) ? txtDurationOfDays.Text.Trim() : "NULL");
+                    strSQL += "," + FmtStr(GetSalesOrganizationCode());
+                    strSQL += "," + FmtStr(GetPodRelevantFlag());
+
                     _clsGlobal.BeginTrans();
                     _clsGlobal.ExecuteTrans(strSQL);
-                    UpdateCustomerMasterEnhancementFlagsTrans();
                     _clsGlobal.CommitTrans();
 
                 }
@@ -4493,7 +4526,6 @@ namespace TIRASnDNet.AR.ARCustMaster
                 if (!SavePartnerFunction())
                     return;
 
-                if (__isFlagKAM)
                 {
                     bool __isTrnsTOPByPrdLine = false;
                     try
@@ -4552,7 +4584,7 @@ namespace TIRASnDNet.AR.ARCustMaster
                         MessageBox.Show(ex.Message, clsGlobal.APP_MSG_CAPTION, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
-                } // end of __isFlagKAM
+                }
 
                 try //jadwal bayar
                 {
@@ -5014,14 +5046,12 @@ namespace TIRASnDNet.AR.ARCustMaster
                     strSQL = strSQL + "'N'"; //cm_dear_notification
                 }
 
-                if (!string.IsNullOrWhiteSpace(txtDurationOfDays.Text.Trim()))
-                {
-                    strSQL = strSQL + "," + txtDurationOfDays.Text.Trim();
-                }
+                strSQL += "," + (!string.IsNullOrWhiteSpace(txtDurationOfDays.Text.Trim()) ? txtDurationOfDays.Text.Trim() : "NULL");
+                strSQL += "," + FmtStr(GetSalesOrganizationCode());
+                strSQL += "," + FmtStr(GetPodRelevantFlag());
 
                 _clsGlobal.BeginTrans();
                 _clsGlobal.ExecuteTrans(strSQL);
-                UpdateCustomerMasterEnhancementFlagsTrans();
                 _clsGlobal.CommitTrans();
             }
             catch (Exception ex)
@@ -5065,7 +5095,6 @@ namespace TIRASnDNet.AR.ARCustMaster
             if (!SavePartnerFunction())
                 return;
 
-            if (__isFlagKAM)
             {
                 bool __isTrnsTOPByPrdLine = false;
                 try
@@ -5124,7 +5153,7 @@ namespace TIRASnDNet.AR.ARCustMaster
                     MessageBox.Show(ex.Message, clsGlobal.APP_MSG_CAPTION, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-            } // end of __isFlagKAM
+            }
 
             try //jadwal bayar
             {
@@ -5835,6 +5864,19 @@ namespace TIRASnDNet.AR.ARCustMaster
         private void txtCustCode_TextChanged(object sender, EventArgs e)
         {
             IsiTextBill(CBShipnBill.ItemIndex, txtCustCode.Text);
+            SetShipBillToReadOnly();
+            RefreshDefaultSoldToPartnerRow();
+        }
+
+        private void RefreshDefaultSoldToPartnerRow()
+        {
+            DataTable table = partnerFunctionGrid == null ? null : partnerFunctionGrid.DataSource as DataTable;
+            if (table == null) return;
+
+            EnsurePartnerFunctionColumns(table);
+            EnsureDefaultSoldToPartnerRow(table);
+            SyncShipBillPartyFromPartnerFunction();
+            partnerFunctionGrid.RefreshDataSource();
         }
 
         private void txtLeadtime_KeyPress(object sender, KeyPressEventArgs e)
@@ -8578,12 +8620,31 @@ namespace TIRASnDNet.AR.ARCustMaster
                     partnerFunctionGrid.DataSource = source;
                 }
                 EnsurePartnerFunctionColumns(source);
+                EnsureDefaultSoldToPartnerRow(source);
+
+                if (_partnerCodeSearchLookupRepository == null)
+                {
+                    _partnerCodeSearchLookupRepository = CreateSearchButtonRepository();
+                    _partnerCodeSearchLookupRepository.DisplayMember = "Kode";
+                    _partnerCodeSearchLookupRepository.ValueMember = "Kode";
+                    partnerFunctionGrid.RepositoryItems.Add(_partnerCodeSearchLookupRepository);
+                }
+
+                if (!partnerFunctionGrid.RepositoryItems.Contains(_partnerCodeSearchLookupRepository))
+                    partnerFunctionGrid.RepositoryItems.Add(_partnerCodeSearchLookupRepository);
+
+                ConfigureSearchLookupButton(_partnerCodeSearchLookupRepository, "Search Partner Function");
+                _partnerCodeSearchLookupRepository.DataSource = GetPartnerCodeLookupDataSource();
+                ConfigureLookupView(_partnerCodeSearchLookupRepository,
+                    new string[] { "Kode", "Nama" },
+                    new string[] { "Code", "Description" },
+                    new int[] { 110, 300 });
 
                 if (_partnerShipToSearchLookupRepository == null)
                 {
                     _partnerShipToSearchLookupRepository = CreateSearchButtonRepository();
-                    _partnerShipToSearchLookupRepository.DisplayMember = "ShipCode1";
-                    _partnerShipToSearchLookupRepository.ValueMember = "LookupKey";
+                    _partnerShipToSearchLookupRepository.DisplayMember = "MappCode1";
+                    _partnerShipToSearchLookupRepository.ValueMember = "MappCode1";
                     _partnerShipToSearchLookupRepository.ButtonClick += PartnerShipToSearchLookupRepository_ButtonClick;
                     partnerFunctionGrid.RepositoryItems.Add(_partnerShipToSearchLookupRepository);
                 }
@@ -8595,12 +8656,9 @@ namespace TIRASnDNet.AR.ARCustMaster
                 ConfigureSearchLookupButton(_partnerShipToSearchLookupRepository, "Search Ship To");
                 _partnerShipToSearchLookupRepository.DataSource = GetPartnerShipToLookupDataSource();
                 ConfigureLookupView(_partnerShipToSearchLookupRepository,
-                    new string[] { "BranchCode", "ShipCode1", "ShipDescription" },
-                    new string[] { "Branch Code", "Ship To Code", "Ship To Description" },
-                    new int[] { 110, 130, 440 });
-                string[] partnerLookupVisibleFields = new string[] { "BranchCode", "ShipCode1", "ShipDescription" };
-                foreach (DevExpress.XtraGrid.Columns.GridColumn column in _partnerShipToSearchLookupRepository.View.Columns)
-                    column.Visible = partnerLookupVisibleFields.Contains(column.FieldName);
+                    new string[] { "MappCode1", "MappCode2", "Description" },
+                    new string[] { "Code 1", "Code 2", "Description" },
+                    new int[] { 120, 90, 300 });
 
                 if (_partnerDefaultCheckRepository == null)
                 {
@@ -8613,25 +8671,34 @@ namespace TIRASnDNet.AR.ARCustMaster
                 partnerFunctionView.BeginUpdate();   
                 try
                 {
-                    PrepareGridColumn(partnerFunctionView, "partnerNoCol", "no", "Nomor", 55, 0, false);
-                    PrepareGridColumn(partnerFunctionView, "partnerShipToCode1Col", "msh_shipto_code1", "msh_shipto_code1", 120, 1, false);
-                    PrepareGridColumn(partnerFunctionView, "partnerShipToButtonCol", "shipto_btn", "", 28, 2, true);   // <<< button index 2
-                    PrepareGridColumn(partnerFunctionView, "partnerShipToDescCol", "shipto_desc", "shipto description", 430, 3, false);
-                    PrepareGridColumn(partnerFunctionView, "partnerShipToCode2Col", "msh_shipto_code2", "msh_shipto_code2", 120, 4, false); // pindah ke index 4, lalu di-hide
-                    PrepareGridColumn(partnerFunctionView, "partnerDefaultCol", "msh_default", "default", 70, 5, true);
+                    PrepareGridColumn(partnerFunctionView, "partnerEntityCol", "cmm_entity_id", "cmm_entity_id", 80, 0, false);
+                    PrepareGridColumn(partnerFunctionView, "partnerBranchCol", "cmm_branch_id", "cmm_branch_id", 80, 1, false);
+                    PrepareGridColumn(partnerFunctionView, "partnerCustCode1Col", "cmm_cust_code1", "cmm_cust_code1", 95, 0, false);
+                    PrepareGridColumn(partnerFunctionView, "partnerCustCode2Col", "cmm_cust_code2", "cmm_cust_code2", 80, 1, false);
+                    PrepareGridColumn(partnerFunctionView, "partnerCodeCol", "cmm_partner_code", "cmm_partner_code", 70, 1, false);
+                    PrepareGridColumn(partnerFunctionView, "partnerBtnCol", "partner_btn", "", 28, 2, true);
+                    PrepareGridColumn(partnerFunctionView, "partnerDescCol", "partner_desc", "partner_desc", 150, 3, false);
+                    PrepareGridColumn(partnerFunctionView, "partnerMappCode1Col", "cmm_mapp_code1", "cmm_mapp_code1", 110, 4, false);
+                    PrepareGridColumn(partnerFunctionView, "partnerMappBtnCol", "mapp_btn", "", 28, 5, true);
+                    PrepareGridColumn(partnerFunctionView, "partnerMappDescCol", "mapp_desc", "mapp_desc", 170, 6, false);
+                    PrepareGridColumn(partnerFunctionView, "partnerMappCode2Col", "cmm_mapp_code2", "cmm_mapp_code2", 80, 7, false);
+                    PrepareGridColumn(partnerFunctionView, "partnerDefaultCol", "cmm_default", "cmm_default", 70, 8, true);
 
-                   
-                    DevExpress.XtraGrid.Columns.GridColumn shipToButtonColumn =
-                        GetGridColumnByNameOrField(partnerFunctionView, "partnerShipToButtonCol", "shipto_btn");
-                    ConfigureSearchButtonColumn(shipToButtonColumn, _partnerShipToSearchLookupRepository, "Search Ship To");
+                    string[] visiblePartnerFields = new string[]
+                    {
+                        "cmm_cust_code1", "cmm_partner_code", "partner_btn", "partner_desc",
+                        "cmm_mapp_code1", "mapp_btn", "mapp_desc", "cmm_mapp_code2", "cmm_default"
+                    };
+                    foreach (DevExpress.XtraGrid.Columns.GridColumn column in partnerFunctionView.Columns)
+                    {
+                        if (!visiblePartnerFields.Contains(column.FieldName))
+                            column.Visible = false;
+                    }
 
-                    DevExpress.XtraGrid.Columns.GridColumn shipToCode2Column =
-                        GetGridColumnByNameOrField(partnerFunctionView, "partnerShipToCode2Col", "msh_shipto_code2");
-                    if (shipToCode2Column != null)
-                        shipToCode2Column.Visible = false;
-
-                    if (partnerFunctionView.Columns["msh_default"] != null)
-                        partnerFunctionView.Columns["msh_default"].ColumnEdit = _partnerDefaultCheckRepository;
+                    ConfigureSearchButtonColumn(GetGridColumnByNameOrField(partnerFunctionView, "partnerBtnCol", "partner_btn"), _partnerCodeSearchLookupRepository, "Search Partner Function");
+                    ConfigureSearchButtonColumn(GetGridColumnByNameOrField(partnerFunctionView, "partnerMappBtnCol", "mapp_btn"), _partnerShipToSearchLookupRepository, "Search Mapping Code");
+                    if (partnerFunctionView.Columns["cmm_default"] != null)
+                        partnerFunctionView.Columns["cmm_default"].ColumnEdit = _partnerDefaultCheckRepository;
 
                     partnerFunctionView.OptionsView.ShowGroupPanel = false;
                     partnerFunctionView.OptionsView.ColumnAutoWidth = false;   
@@ -8647,10 +8714,16 @@ namespace TIRASnDNet.AR.ARCustMaster
 
                 partnerFunctionView.CellValueChanged -= PartnerFunctionView_CellValueChanged;
                 partnerFunctionView.CellValueChanged += PartnerFunctionView_CellValueChanged;
+                partnerFunctionView.CustomColumnDisplayText -= PartnerFunctionView_CustomColumnDisplayText;
+                partnerFunctionView.CustomColumnDisplayText += PartnerFunctionView_CustomColumnDisplayText;
                 partnerFunctionView.ShownEditor -= PartnerFunctionView_ShownEditor;
                 partnerFunctionView.ShownEditor += PartnerFunctionView_ShownEditor;
+                partnerFunctionView.ShowingEditor -= PartnerFunctionView_ShowingEditor;
+                partnerFunctionView.ShowingEditor += PartnerFunctionView_ShowingEditor;
                 partnerFunctionView.RowCellClick -= PartnerFunctionView_RowCellClick;
                 partnerFunctionView.RowCellClick += PartnerFunctionView_RowCellClick;
+                partnerFunctionView.InitNewRow -= PartnerFunctionView_InitNewRow;
+                partnerFunctionView.InitNewRow += PartnerFunctionView_InitNewRow;
                 partnerFunctionView.KeyDown -= PartnerFunctionView_KeyDown;
                 partnerFunctionView.KeyDown += PartnerFunctionView_KeyDown;
                 partnerFunctionGrid.KeyDown -= PartnerFunctionView_KeyDown;
@@ -8670,24 +8743,133 @@ namespace TIRASnDNet.AR.ARCustMaster
         private DataTable CreatePartnerFunctionTable()
         {
             DataTable table = new DataTable();
-            table.Columns.Add("no", typeof(int));
-            table.Columns.Add("msh_shipto_code1", typeof(string));
-            table.Columns.Add("msh_shipto_code2", typeof(string));
-            table.Columns.Add("shipto_btn", typeof(string));
-            table.Columns.Add("shipto_desc", typeof(string));
-            table.Columns.Add("msh_default", typeof(bool));
+            table.Columns.Add("cmm_entity_id", typeof(string));
+            table.Columns.Add("cmm_branch_id", typeof(string));
+            table.Columns.Add("cmm_cust_code1", typeof(string));
+            table.Columns.Add("cmm_cust_code2", typeof(string));
+            table.Columns.Add("cmm_partner_code", typeof(string));
+            table.Columns.Add("partner_btn", typeof(string));
+            table.Columns.Add("partner_desc", typeof(string));
+            table.Columns.Add("cmm_mapp_code1", typeof(string));
+            table.Columns.Add("mapp_btn", typeof(string));
+            table.Columns.Add("mapp_desc", typeof(string));
+            table.Columns.Add("cmm_mapp_code2", typeof(string));
+            table.Columns.Add("cmm_default", typeof(bool));
             return table;
         }
 
         private void EnsurePartnerFunctionColumns(DataTable table)
         {
             if (table == null) return;
-            if (!table.Columns.Contains("no")) table.Columns.Add("no", typeof(int));
-            if (!table.Columns.Contains("msh_shipto_code1")) table.Columns.Add("msh_shipto_code1", typeof(string));
-            if (!table.Columns.Contains("msh_shipto_code2")) table.Columns.Add("msh_shipto_code2", typeof(string));
-            if (!table.Columns.Contains("shipto_btn")) table.Columns.Add("shipto_btn", typeof(string));
-            if (!table.Columns.Contains("shipto_desc")) table.Columns.Add("shipto_desc", typeof(string));
-            if (!table.Columns.Contains("msh_default")) table.Columns.Add("msh_default", typeof(bool));
+            if (!table.Columns.Contains("cmm_entity_id")) table.Columns.Add("cmm_entity_id", typeof(string));
+            if (!table.Columns.Contains("cmm_branch_id")) table.Columns.Add("cmm_branch_id", typeof(string));
+            if (!table.Columns.Contains("cmm_cust_code1")) table.Columns.Add("cmm_cust_code1", typeof(string));
+            if (!table.Columns.Contains("cmm_cust_code2")) table.Columns.Add("cmm_cust_code2", typeof(string));
+            if (!table.Columns.Contains("cmm_partner_code")) table.Columns.Add("cmm_partner_code", typeof(string));
+            if (!table.Columns.Contains("partner_btn")) table.Columns.Add("partner_btn", typeof(string));
+            if (!table.Columns.Contains("partner_desc")) table.Columns.Add("partner_desc", typeof(string));
+            if (!table.Columns.Contains("cmm_mapp_code1")) table.Columns.Add("cmm_mapp_code1", typeof(string));
+            if (!table.Columns.Contains("mapp_btn")) table.Columns.Add("mapp_btn", typeof(string));
+            if (!table.Columns.Contains("mapp_desc")) table.Columns.Add("mapp_desc", typeof(string));
+            if (!table.Columns.Contains("cmm_mapp_code2")) table.Columns.Add("cmm_mapp_code2", typeof(string));
+            if (!table.Columns.Contains("cmm_default")) table.Columns.Add("cmm_default", typeof(bool));
+        }
+
+        private void EnsureDefaultSoldToPartnerRow(DataTable table)
+        {
+            if (table == null) return;
+
+            string entity = GetPartnerFunctionEntity();
+            string branch = GetPartnerFunctionBranch();
+            string custCode1 = txtCustCode.Text.Trim();
+            string custCode2 = txtCustCodeTo.Text.Trim();
+            if (string.IsNullOrWhiteSpace(custCode1))
+                return;
+
+            DataRow spRow = table.Rows.Cast<DataRow>()
+                .Where(row => row.RowState != DataRowState.Deleted)
+                .FirstOrDefault(row => string.Equals(Convert.ToString(row["cmm_partner_code"]).Trim(), "SP", StringComparison.OrdinalIgnoreCase));
+
+            if (spRow == null)
+            {
+                spRow = table.NewRow();
+                table.Rows.InsertAt(spRow, 0);
+            }
+
+            spRow["cmm_entity_id"] = entity;
+            spRow["cmm_branch_id"] = branch;
+            spRow["cmm_cust_code1"] = custCode1;
+            spRow["cmm_cust_code2"] = custCode2;
+            spRow["cmm_partner_code"] = "SP";
+            spRow["partner_desc"] = GetPartnerCodeDescription("SP", "Sold-to Party");
+            spRow["partner_btn"] = string.Empty;
+            spRow["cmm_mapp_code1"] = custCode1;
+            spRow["cmm_mapp_code2"] = string.IsNullOrWhiteSpace(custCode2) ? "000" : custCode2;
+            spRow["mapp_desc"] = txtCustName.Text.Trim();
+            spRow["mapp_btn"] = string.Empty;
+            spRow["cmm_default"] = true;
+
+            foreach (DataRow row in table.Rows)
+            {
+                if (row.RowState == DataRowState.Deleted || object.ReferenceEquals(row, spRow)) continue;
+                row["cmm_default"] = false;
+            }
+
+            if (table.Rows.IndexOf(spRow) > 0)
+            {
+                object[] values = spRow.ItemArray;
+                table.Rows.Remove(spRow);
+                DataRow newSpRow = table.NewRow();
+                newSpRow.ItemArray = values;
+                table.Rows.InsertAt(newSpRow, 0);
+            }
+
+            SyncShipBillPartyFromPartnerFunction();
+        }
+
+        private void SyncShipBillPartyFromPartnerFunction()
+        {
+            DataTable table = partnerFunctionGrid == null ? null : partnerFunctionGrid.DataSource as DataTable;
+            if (table == null) return;
+
+            DataRow spRow = GetPartnerFunctionRowByCode(table, "SP");
+            if (spRow != null)
+            {
+                txtShiptoCustCode.Text = Convert.ToString(spRow["cmm_mapp_code1"]).Trim();
+                txtShiptoCustCodeTo.Text = Convert.ToString(spRow["cmm_mapp_code2"]).Trim();
+            }
+
+            DataRow bpRow = GetPartnerFunctionRowByCode(table, "BP");
+            if (bpRow != null)
+            {
+                txtBilltoCustCode.Text = Convert.ToString(bpRow["cmm_mapp_code1"]).Trim();
+                txtBilltoCustCodeTo.Text = Convert.ToString(bpRow["cmm_mapp_code2"]).Trim();
+            }
+
+            SetShipBillToReadOnly();
+        }
+
+        private DataRow GetPartnerFunctionRowByCode(DataTable table, string partnerCode)
+        {
+            if (table == null) return null;
+
+            return table.Rows.Cast<DataRow>()
+                .Where(row => row.RowState != DataRowState.Deleted)
+                .FirstOrDefault(row => string.Equals(Convert.ToString(row["cmm_partner_code"]).Trim(), partnerCode, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private string GetPartnerCodeDescription(string code, string defaultDescription)
+        {
+            DataTable lookup = _partnerCodeSearchLookupRepository == null ? null : _partnerCodeSearchLookupRepository.DataSource as DataTable;
+            if (lookup != null)
+            {
+                DataRow row = lookup.Rows.Cast<DataRow>()
+                    .FirstOrDefault(r => string.Equals(Convert.ToString(r["Kode"]).Trim(), code, StringComparison.OrdinalIgnoreCase));
+                if (row != null)
+                    return Convert.ToString(row["Nama"]).Trim();
+            }
+
+            return defaultDescription;
         }
 
         private string GetPartnerFunctionEntity()
@@ -8712,17 +8894,23 @@ namespace TIRASnDNet.AR.ARCustMaster
             string branch = GetPartnerFunctionBranch();
             string query = @"
 SELECT
-    LTRIM(RTRIM(cm.cm_cust_code1)) + '|' + LTRIM(RTRIM(cm.cm_cust_code2)) AS [LookupKey],
-    LTRIM(RTRIM(cm.cm_branch)) AS [BranchCode],
-    LTRIM(RTRIM(cm.cm_cust_code1)) AS [ShipCode1],
-    LTRIM(RTRIM(cm.cm_cust_code2)) AS [Kode2],
-    LTRIM(RTRIM(cm.cm_cust_name)) AS [ShipDescription]
+    LTRIM(RTRIM(cm.cm_cust_code1)) AS [MappCode1],
+    LTRIM(RTRIM(cm.cm_cust_code2)) AS [MappCode2],
+    LTRIM(RTRIM(cm.cm_cust_name)) AS [Description]
 FROM SO_CUST_MASTER cm WITH(NOLOCK)
 WHERE cm.cm_entity = '" + entity.Replace("'", "''") + @"'
   AND cm.cm_branch = '" + branch.Replace("'", "''") + @"'
 ORDER BY cm.cm_branch, cm.cm_cust_code1, cm.cm_cust_code2";
 
             return _clsGlobal.ExecDT(query);
+        }
+
+        private DataTable GetPartnerCodeLookupDataSource()
+        {
+            return _clsGlobal.ExecDT(@"SELECT gh_function_code AS [Kode], gh_function_desc AS [Nama]
+                FROM GS_GEN_HARDCODED WITH(NOLOCK)
+                WHERE gh_function_name = 'PARTNERFUNC'
+                ORDER BY gh_function_code");
         }
 
         private void PartnerShipToSearchLookupRepository_ButtonClick(object sender, DevExpress.XtraEditors.Controls.ButtonPressedEventArgs e)
@@ -8736,26 +8924,67 @@ ORDER BY cm.cm_branch, cm.cm_cust_code1, cm.cm_cust_code2";
         {
             if (e == null || e.RowHandle < 0 || partnerFunctionView == null) return;
 
-            if (string.Equals(e.Column.FieldName, "shipto_btn", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(e.Column.FieldName, "partner_btn", StringComparison.OrdinalIgnoreCase))
+            {
+                ApplyPartnerCodeLookupValue(e.RowHandle, e.Value == null ? string.Empty : e.Value.ToString());
+                return;
+            }
+
+            if (string.Equals(e.Column.FieldName, "mapp_btn", StringComparison.OrdinalIgnoreCase))
             {
                 ApplyPartnerShipToLookupValue(e.RowHandle, e.Value == null ? string.Empty : e.Value.ToString());
                 return;
             }
 
-            if (string.Equals(e.Column.FieldName, "msh_default", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(e.Column.FieldName, "cmm_default", StringComparison.OrdinalIgnoreCase))
                 ApplySinglePartnerDefault(e.RowHandle, e.Value);
+        }
+
+        private void PartnerFunctionView_CustomColumnDisplayText(object sender, DevExpress.XtraGrid.Views.Base.CustomColumnDisplayTextEventArgs e)
+        {
+            if (e == null || e.Value == null || e.Value == DBNull.Value)
+                e.DisplayText = string.Empty;
+        }
+
+        private void PartnerFunctionView_ShowingEditor(object sender, CancelEventArgs e)
+        {
+            if (partnerFunctionView == null || partnerFunctionView.FocusedColumn == null || e == null) return;
+
+            DataRow row = partnerFunctionView.GetDataRow(partnerFunctionView.FocusedRowHandle);
+            if (row == null) return;
+
+            if (IsSoldToPartnerRow(row))
+                e.Cancel = true;
         }
 
         private void PartnerFunctionView_ShownEditor(object sender, EventArgs e)
         {
             if (partnerFunctionView == null || partnerFunctionView.FocusedColumn == null) return;
-            if (!string.Equals(partnerFunctionView.FocusedColumn.FieldName, "shipto_btn", StringComparison.OrdinalIgnoreCase)) return;
+            if (!string.Equals(partnerFunctionView.FocusedColumn.FieldName, "partner_btn", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(partnerFunctionView.FocusedColumn.FieldName, "mapp_btn", StringComparison.OrdinalIgnoreCase)) return;
 
             SearchLookUpEdit editor = partnerFunctionView.ActiveEditor as SearchLookUpEdit;
             if (editor == null) return;
 
+            editor.EditValueChanged -= PartnerCodeSearchLookupEditor_EditValueChanged;
             editor.EditValueChanged -= PartnerShipToSearchLookupEditor_EditValueChanged;
-            editor.EditValueChanged += PartnerShipToSearchLookupEditor_EditValueChanged;
+
+            if (string.Equals(partnerFunctionView.FocusedColumn.FieldName, "partner_btn", StringComparison.OrdinalIgnoreCase))
+            {
+                editor.EditValueChanged += PartnerCodeSearchLookupEditor_EditValueChanged;
+            }
+            else
+            {
+                editor.EditValueChanged += PartnerShipToSearchLookupEditor_EditValueChanged;
+            }
+        }
+
+        private void PartnerCodeSearchLookupEditor_EditValueChanged(object sender, EventArgs e)
+        {
+            SearchLookUpEdit editor = sender as SearchLookUpEdit;
+            if (editor == null || partnerFunctionView == null) return;
+
+            ApplyPartnerCodeLookupValue(partnerFunctionView.FocusedRowHandle, editor.EditValue == null ? string.Empty : editor.EditValue.ToString());
         }
 
         private void PartnerShipToSearchLookupEditor_EditValueChanged(object sender, EventArgs e)
@@ -8769,7 +8998,8 @@ ORDER BY cm.cm_branch, cm.cm_cust_code1, cm.cm_cust_code2";
         private void PartnerFunctionView_RowCellClick(object sender, DevExpress.XtraGrid.Views.Grid.RowCellClickEventArgs e)
         {
             if (e == null || e.RowHandle < 0 || e.Column == null || partnerFunctionView == null) return;
-            if (!string.Equals(e.Column.FieldName, "shipto_btn", StringComparison.OrdinalIgnoreCase)) return;
+            if (!string.Equals(e.Column.FieldName, "partner_btn", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(e.Column.FieldName, "mapp_btn", StringComparison.OrdinalIgnoreCase)) return;
 
             partnerFunctionView.FocusedRowHandle = e.RowHandle;
             partnerFunctionView.FocusedColumn = e.Column;
@@ -8789,17 +9019,66 @@ ORDER BY cm.cm_branch, cm.cm_cust_code1, cm.cm_cust_code2";
             if (e.KeyCode == Keys.Insert)
             {
                 DataRow row = table.NewRow();
-                row["msh_default"] = false;
+                row["cmm_entity_id"] = GetPartnerFunctionEntity();
+                row["cmm_branch_id"] = GetPartnerFunctionBranch();
+                row["cmm_cust_code1"] = txtCustCode.Text.Trim();
+                row["cmm_cust_code2"] = txtCustCodeTo.Text.Trim();
+                row["cmm_default"] = false;
                 table.Rows.Add(row);
-                RenumberPartnerFunctionRows();
                 e.Handled = true;
             }
             else if (e.KeyCode == Keys.Delete && partnerFunctionView != null && partnerFunctionView.FocusedRowHandle >= 0)
             {
+                DataRow row = partnerFunctionView.GetDataRow(partnerFunctionView.FocusedRowHandle);
+                if (IsSoldToPartnerRow(row))
+                {
+                    e.Handled = true;
+                    return;
+                }
+
                 partnerFunctionView.DeleteRow(partnerFunctionView.FocusedRowHandle);
-                RenumberPartnerFunctionRows();
                 e.Handled = true;
             }
+        }
+
+        private void PartnerFunctionView_InitNewRow(object sender, DevExpress.XtraGrid.Views.Grid.InitNewRowEventArgs e)
+        {
+            if (partnerFunctionView == null || e == null) return;
+
+            partnerFunctionView.SetRowCellValue(e.RowHandle, "cmm_entity_id", GetPartnerFunctionEntity());
+            partnerFunctionView.SetRowCellValue(e.RowHandle, "cmm_branch_id", GetPartnerFunctionBranch());
+            partnerFunctionView.SetRowCellValue(e.RowHandle, "cmm_cust_code1", txtCustCode.Text.Trim());
+            partnerFunctionView.SetRowCellValue(e.RowHandle, "cmm_cust_code2", txtCustCodeTo.Text.Trim());
+            partnerFunctionView.SetRowCellValue(e.RowHandle, "cmm_default", false);
+        }
+
+        private void ApplyPartnerCodeLookupValue(int rowHandle, string key)
+        {
+            if (partnerFunctionView == null || string.IsNullOrWhiteSpace(key)) return;
+
+            DataRow row = partnerFunctionView.GetDataRow(rowHandle);
+            if (row == null) return;
+
+            DataTable lookup = _partnerCodeSearchLookupRepository == null ? null : _partnerCodeSearchLookupRepository.DataSource as DataTable;
+            if (lookup == null) return;
+
+            DataRow selected = lookup.Rows.Cast<DataRow>()
+                .FirstOrDefault(r => string.Equals(Convert.ToString(r["Kode"]).Trim(), key, StringComparison.OrdinalIgnoreCase));
+            if (selected == null) return;
+
+            string partnerCode = Convert.ToString(selected["Kode"]).Trim();
+            if (string.Equals(partnerCode, "SP", StringComparison.OrdinalIgnoreCase))
+            {
+                EnsureDefaultSoldToPartnerRow(partnerFunctionGrid == null ? null : partnerFunctionGrid.DataSource as DataTable);
+                return;
+            }
+
+            partnerFunctionView.SetRowCellValue(rowHandle, "cmm_partner_code", Convert.ToString(selected["Kode"]).Trim());
+            partnerFunctionView.SetRowCellValue(rowHandle, "partner_desc", Convert.ToString(selected["Nama"]).Trim());
+            partnerFunctionView.SetRowCellValue(rowHandle, "partner_btn", string.Empty);
+            partnerFunctionView.PostEditor();
+            partnerFunctionView.UpdateCurrentRow();
+            SyncShipBillPartyFromPartnerFunction();
         }
 
         private void ApplyPartnerShipToLookupValue(int rowHandle, string key)
@@ -8814,18 +9093,18 @@ ORDER BY cm.cm_branch, cm.cm_cust_code1, cm.cm_cust_code2";
             if (lookup != null)
             {
                 selected = lookup.Rows.Cast<DataRow>()
-                    .FirstOrDefault(r => string.Equals(r["LookupKey"].ToString(), key, StringComparison.OrdinalIgnoreCase));
+                    .FirstOrDefault(r => string.Equals(r["MappCode1"].ToString(), key, StringComparison.OrdinalIgnoreCase));
             }
 
             if (selected == null) return;
 
-            partnerFunctionView.SetRowCellValue(rowHandle, "msh_shipto_code1", selected["ShipCode1"].ToString());
-            partnerFunctionView.SetRowCellValue(rowHandle, "msh_shipto_code2", selected["Kode2"].ToString());
-            partnerFunctionView.SetRowCellValue(rowHandle, "shipto_desc", selected["ShipDescription"].ToString());
-            partnerFunctionView.SetRowCellValue(rowHandle, "shipto_btn", string.Empty);
+            partnerFunctionView.SetRowCellValue(rowHandle, "cmm_mapp_code1", selected["MappCode1"].ToString());
+            partnerFunctionView.SetRowCellValue(rowHandle, "cmm_mapp_code2", selected["MappCode2"].ToString());
+            partnerFunctionView.SetRowCellValue(rowHandle, "mapp_desc", selected["Description"].ToString());
+            partnerFunctionView.SetRowCellValue(rowHandle, "mapp_btn", string.Empty);
             partnerFunctionView.PostEditor();
             partnerFunctionView.UpdateCurrentRow();
-            RenumberPartnerFunctionRows();
+            SyncShipBillPartyFromPartnerFunction();
         }
 
         private void ApplySinglePartnerDefault(int rowHandle, object value)
@@ -8838,19 +9117,30 @@ ORDER BY cm.cm_branch, cm.cm_cust_code1, cm.cm_cust_code2";
             DataRow current = partnerFunctionView == null ? null : partnerFunctionView.GetDataRow(rowHandle);
             if (current == null) return;
 
+            if (!IsSoldToPartnerRow(current))
+            {
+                current["cmm_default"] = false;
+                return;
+            }
+
             try
             {
                 _isUpdatingPartnerDefault = true;
                 foreach (DataRow row in table.Rows)
                 {
                     if (row.RowState == DataRowState.Deleted || object.ReferenceEquals(row, current)) continue;
-                    row["msh_default"] = false;
+                    row["cmm_default"] = false;
                 }
             }
             finally
             {
                 _isUpdatingPartnerDefault = false;
             }
+        }
+
+        private bool IsSoldToPartnerRow(DataRow row)
+        {
+            return row != null && string.Equals(Convert.ToString(row["cmm_partner_code"]).Trim(), "SP", StringComparison.OrdinalIgnoreCase);
         }
 
         private void RenumberPartnerFunctionRows()
@@ -8862,7 +9152,8 @@ ORDER BY cm.cm_branch, cm.cm_cust_code1, cm.cm_cust_code2";
             foreach (DataRow row in table.Rows)
             {
                 if (row.RowState == DataRowState.Deleted) continue;
-                row["no"] = number++;
+                if (table.Columns.Contains("no"))
+                    row["no"] = number++;
             }
         }
 
@@ -8874,8 +9165,9 @@ ORDER BY cm.cm_branch, cm.cm_cust_code1, cm.cm_cust_code2";
 
             return table.Rows.Cast<DataRow>()
                 .Where(row => row.RowState != DataRowState.Deleted)
-                .Where(row => !string.IsNullOrWhiteSpace(row["msh_shipto_code1"].ToString()) ||
-                              !string.IsNullOrWhiteSpace(row["msh_shipto_code2"].ToString()))
+                .Where(row => !string.IsNullOrWhiteSpace(row["cmm_partner_code"].ToString()) ||
+                              !string.IsNullOrWhiteSpace(row["cmm_mapp_code1"].ToString()) ||
+                              !string.IsNullOrWhiteSpace(row["cmm_mapp_code2"].ToString()))
                 .ToList();
         }
 
@@ -8883,27 +9175,42 @@ ORDER BY cm.cm_branch, cm.cm_cust_code1, cm.cm_cust_code2";
         {
             FlushGridEditor(partnerFunctionGrid, partnerFunctionView);
 
+            DataTable table = partnerFunctionGrid == null ? null : partnerFunctionGrid.DataSource as DataTable;
+            EnsurePartnerFunctionColumns(table);
+            EnsureDefaultSoldToPartnerRow(table);
+            if (partnerFunctionGrid != null)
+                partnerFunctionGrid.RefreshDataSource();
+
             List<DataRow> rows = GetValidPartnerFunctionRows().ToList();
             if (rows.Count == 0)
             {
                 FocusInvalidPartnerFunctionTab();
-                ShowValidationError(partnerFunctionPage, "Partner Function wajib diisi minimal satu Ship To.", MessageBoxIcon.Error);
+                ShowValidationError(partnerFunctionPage, "Partner Function wajib diisi minimal satu mapping.", MessageBoxIcon.Error);
                 return false;
             }
 
-            if (rows.Any(row => string.IsNullOrWhiteSpace(row["msh_shipto_code1"].ToString()) ||
-                                string.IsNullOrWhiteSpace(row["msh_shipto_code2"].ToString())))
+            if (rows.Any(row => string.IsNullOrWhiteSpace(row["cmm_partner_code"].ToString()) ||
+                                string.IsNullOrWhiteSpace(row["cmm_mapp_code1"].ToString()) ||
+                                string.IsNullOrWhiteSpace(row["cmm_mapp_code2"].ToString())))
             {
                 FocusInvalidPartnerFunctionTab();
-                ShowValidationError(partnerFunctionPage, "Shipto Code 1 dan Shipto Code 2 pada Partner Function wajib lengkap.", MessageBoxIcon.Error);
+                ShowValidationError(partnerFunctionPage, "Partner Code, Mapp Code 1, dan Mapp Code 2 pada Partner Function wajib lengkap.", MessageBoxIcon.Error);
                 return false;
             }
 
-            int defaultCount = rows.Count(row => IsCheckedValue(row["msh_default"]));
+            int defaultCount = rows.Count(row => IsCheckedValue(row["cmm_default"]));
             if (defaultCount != 1)
             {
                 FocusInvalidPartnerFunctionTab();
-                ShowValidationError(partnerFunctionPage, "Partner Function harus memiliki tepat satu Ship To yang menjadi default. Pilih satu checkbox default saja.", MessageBoxIcon.Error);
+                ShowValidationError(partnerFunctionPage, "Partner Function harus memiliki tepat satu mapping default. Pilih satu checkbox default saja.", MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (!rows.Any(row => string.Equals(row["cmm_partner_code"].ToString().Trim(), "SP", StringComparison.OrdinalIgnoreCase)) ||
+                !rows.Any(row => string.Equals(row["cmm_partner_code"].ToString().Trim(), "BP", StringComparison.OrdinalIgnoreCase)))
+            {
+                FocusInvalidPartnerFunctionTab();
+                ShowValidationError(partnerFunctionPage, "Partner Function wajib memiliki Partner Code SP dan BP.", MessageBoxIcon.Error);
                 return false;
             }
 
@@ -8944,27 +9251,29 @@ ORDER BY cm.cm_branch, cm.cm_cust_code1, cm.cm_cust_code2";
             {
                 _clsGlobal.BeginTrans();
 
-                strSQL = "DELETE FROM SD_MULTI_SHIPTO " +
-                         "WHERE msh_entity_id = " + FmtStr(entity) + " " +
-                         "AND msh_branch_id = " + FmtStr(branch) + " " +
-                         "AND msh_cust_code1 = " + FmtStr(custCode1) + " " +
-                         "AND msh_cust_code2 = " + FmtStr(custCode2);
+                strSQL = "DELETE FROM SO_CUST_MAPP_MULTI " +
+                         "WHERE cmm_entity_id = " + FmtStr(entity) + " " +
+                         "AND cmm_branch_id = " + FmtStr(branch) + " " +
+                         "AND cmm_cust_code1 = " + FmtStr(custCode1) + " " +
+                         "AND cmm_cust_code2 = " + FmtStr(custCode2);
                 _clsGlobal.ExecuteTrans(strSQL);
 
                 foreach (DataRow row in rows)
                 {
-                    string shipToCode1 = row["msh_shipto_code1"].ToString().Trim();
-                    string shipToCode2 = row["msh_shipto_code2"].ToString().Trim();
-                    string defaultFlag = IsCheckedValue(row["msh_default"]) ? "Y" : "N";
+                    string partnerCode = row["cmm_partner_code"].ToString().Trim();
+                    string mappCode1 = row["cmm_mapp_code1"].ToString().Trim();
+                    string mappCode2 = row["cmm_mapp_code2"].ToString().Trim();
+                    string defaultFlag = IsCheckedValue(row["cmm_default"]) ? "Y" : "N";
 
-                    strSQL = "INSERT INTO SD_MULTI_SHIPTO " +
-                             "(msh_entity_id, msh_branch_id, msh_cust_code1, msh_cust_code2, msh_shipto_code1, msh_shipto_code2, msh_default, msh_created_date, msh_created_by, msh_last_update, msh_update_by) VALUES (" +
+                    strSQL = "INSERT INTO SO_CUST_MAPP_MULTI " +
+                             "(cmm_entity_id, cmm_branch_id, cmm_cust_code1, cmm_cust_code2, cmm_partner_code, cmm_mapp_code1, cmm_mapp_code2, cmm_default, cmm_created_date, cmm_created_by, cmm_last_update, cmm_update_by) VALUES (" +
                              FmtStr(entity) + ", " +
                              FmtStr(branch) + ", " +
                              FmtStr(custCode1) + ", " +
                              FmtStr(custCode2) + ", " +
-                             FmtStr(shipToCode1) + ", " +
-                             FmtStr(shipToCode2) + ", " +
+                             FmtStr(partnerCode) + ", " +
+                             FmtStr(mappCode1) + ", " +
+                             FmtStr(mappCode2) + ", " +
                              FmtStr(defaultFlag) + ", " +
                              "GETDATE(), " +
                              FmtStr(clsLogin.USERID) + ", " +
@@ -9550,23 +9859,32 @@ ORDER BY cm.cm_branch, cm.cm_cust_code1, cm.cm_cust_code2";
                 {
                     strSQL = @"
                     SELECT
-                        ROW_NUMBER() OVER(ORDER BY m.msh_shipto_code1, m.msh_shipto_code2) AS [no],
-                        LTRIM(RTRIM(m.msh_shipto_code1)) AS msh_shipto_code1,
-                        LTRIM(RTRIM(m.msh_shipto_code2)) AS msh_shipto_code2,
-                        '' AS shipto_btn,
-                        ISNULL(cm.cm_cust_name, '') AS shipto_desc,
-                        CASE WHEN ISNULL(m.msh_default, 'N') = 'Y' THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END AS msh_default
-                    FROM SD_MULTI_SHIPTO m WITH(NOLOCK)
+                        LTRIM(RTRIM(m.cmm_entity_id)) AS cmm_entity_id,
+                        LTRIM(RTRIM(m.cmm_branch_id)) AS cmm_branch_id,
+                        LTRIM(RTRIM(m.cmm_cust_code1)) AS cmm_cust_code1,
+                        LTRIM(RTRIM(m.cmm_cust_code2)) AS cmm_cust_code2,
+                        LTRIM(RTRIM(m.cmm_partner_code)) AS cmm_partner_code,
+                        '' AS partner_btn,
+                        ISNULL(gh.gh_function_desc, '') AS partner_desc,
+                        LTRIM(RTRIM(m.cmm_mapp_code1)) AS cmm_mapp_code1,
+                        '' AS mapp_btn,
+                        ISNULL(cm.cm_cust_name, '') AS mapp_desc,
+                        LTRIM(RTRIM(m.cmm_mapp_code2)) AS cmm_mapp_code2,
+                        CASE WHEN ISNULL(CONVERT(varchar(5), m.cmm_default), 'N') IN ('Y', '1', 'True') THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END AS cmm_default
+                    FROM SO_CUST_MAPP_MULTI m WITH(NOLOCK)
+                    LEFT JOIN GS_GEN_HARDCODED gh WITH(NOLOCK)
+                        ON gh.gh_function_name = 'PARTNERFUNC'
+                        AND gh.gh_function_code = m.cmm_partner_code
                     LEFT JOIN SO_CUST_MASTER cm WITH(NOLOCK)
-                        ON cm.cm_entity = m.msh_entity_id
-                        AND cm.cm_branch = m.msh_branch_id
-                        AND cm.cm_cust_code1 = m.msh_shipto_code1
-                        AND cm.cm_cust_code2 = m.msh_shipto_code2
-                    WHERE m.msh_entity_id = '" + entity.Replace("'", "''") + @"'
-                      AND m.msh_branch_id = '" + branch.Replace("'", "''") + @"'
-                      AND m.msh_cust_code1 = '" + custCode1.Replace("'", "''") + @"'
-                      AND m.msh_cust_code2 = '" + custCode2.Replace("'", "''") + @"'
-                    ORDER BY m.msh_shipto_code1, m.msh_shipto_code2";
+                        ON cm.cm_entity = m.cmm_entity_id
+                        AND cm.cm_branch = m.cmm_branch_id
+                        AND cm.cm_cust_code1 = m.cmm_mapp_code1
+                        AND cm.cm_cust_code2 = m.cmm_mapp_code2
+                    WHERE m.cmm_entity_id = '" + entity.Replace("'", "''") + @"'
+                      AND m.cmm_branch_id = '" + branch.Replace("'", "''") + @"'
+                      AND m.cmm_cust_code1 = '" + custCode1.Replace("'", "''") + @"'
+                      AND m.cmm_cust_code2 = '" + custCode2.Replace("'", "''") + @"'
+                    ORDER BY m.cmm_partner_code, m.cmm_mapp_code1, m.cmm_mapp_code2";
 
                     source = _clsGlobal.ExecDT(strSQL);
                     EnsurePartnerFunctionColumns(source);

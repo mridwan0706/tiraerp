@@ -82,16 +82,12 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.txtMerchanid = new DevExpress.XtraEditors.TextEdit();
             this.label15 = new DevExpress.XtraEditors.LabelControl();
             this.tabControl1 = new DevExpress.XtraTab.XtraTabControl();
+            this.topbyprdline_page = new DevExpress.XtraTab.XtraTabPage();
+            this.lblTopByDivisionHelp = new DevExpress.XtraEditors.LabelControl();
+            this.topbyprdlinedgv = new DevExpress.XtraGrid.GridControl();
+            this.topbyprdlinedgvView = new DevExpress.XtraGrid.Views.Grid.GridView();
+            this.gridView7 = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.tabPage1 = new DevExpress.XtraTab.XtraTabPage();
-            this.partnerFunctionPage = new DevExpress.XtraTab.XtraTabPage();
-            this.partnerFunctionGrid = new DevExpress.XtraGrid.GridControl();
-            this.partnerFunctionView = new DevExpress.XtraGrid.Views.Grid.GridView();
-            this.partnerNoCol = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.partnerShipToCode1Col = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.partnerShipToCode2Col = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.partnerShipToButtonCol = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.partnerShipToDescCol = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.partnerDefaultCol = new DevExpress.XtraGrid.Columns.GridColumn();
             this.label108 = new DevExpress.XtraEditors.LabelControl();
             this.cbfullfilment = new DevExpress.XtraEditors.CheckEdit();
             this.btnDistChannel = new DevExpress.XtraEditors.SimpleButton();
@@ -117,6 +113,9 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.CBBagunanT1 = new DevExpress.XtraEditors.LookUpEdit();
             this.CBPembyaranFktT1 = new DevExpress.XtraEditors.LookUpEdit();
             this.comboBoxPajakT1 = new DevExpress.XtraEditors.LookUpEdit();
+            this.txtSalesOrganizationDescT1 = new DevExpress.XtraEditors.TextEdit();
+            this.comboBoxSalesOrganizationT1 = new DevExpress.XtraEditors.SearchLookUpEdit();
+            this.labelSalesOrganization = new DevExpress.XtraEditors.LabelControl();
             this.checkBoxTopByCustomerT1 = new DevExpress.XtraEditors.CheckEdit();
             this.checkBoxDiscountBaseT1 = new DevExpress.XtraEditors.CheckEdit();
             this.checkBoxKontraBonT1 = new DevExpress.XtraEditors.CheckEdit();
@@ -169,18 +168,20 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.label85 = new DevExpress.XtraEditors.LabelControl();
             this.label67 = new DevExpress.XtraEditors.LabelControl();
             this.label75 = new DevExpress.XtraEditors.LabelControl();
+            this.partnerFunctionPage = new DevExpress.XtraTab.XtraTabPage();
+            this.partnerFunctionGrid = new DevExpress.XtraGrid.GridControl();
+            this.partnerFunctionView = new DevExpress.XtraGrid.Views.Grid.GridView();
+            this.partnerNoCol = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.partnerShipToCode1Col = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.partnerShipToCode2Col = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.partnerShipToButtonCol = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.partnerShipToDescCol = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.partnerDefaultCol = new DevExpress.XtraGrid.Columns.GridColumn();
             this.tabPage2 = new DevExpress.XtraTab.XtraTabPage();
             this.cbJenisIdentitas = new DevExpress.XtraEditors.LookUpEdit();
             this.label112 = new DevExpress.XtraEditors.LabelControl();
             this.label109 = new DevExpress.XtraEditors.LabelControl();
             this.tabControl2 = new DevExpress.XtraTab.XtraTabControl();
-            this.tabPajak = new DevExpress.XtraTab.XtraTabPage();
-            this.gridPajak = new DevExpress.XtraGrid.GridControl();
-            this.gridView1 = new DevExpress.XtraGrid.Views.Grid.GridView();
-            this.gridPajakView = new DevExpress.XtraGrid.Views.Grid.GridView();
-            this.code = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.btn = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.desc = new DevExpress.XtraGrid.Columns.GridColumn();
             this.cbAddressChoice = new DevExpress.XtraEditors.LookUpEdit();
             this.lblTaxAddressChoice = new DevExpress.XtraEditors.LabelControl();
             this.txtSPPKP = new DevExpress.XtraEditors.TextEdit();
@@ -311,7 +312,6 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.popUpProvinsinCity1 = new TIRASnDNet.UsrControls.PopUpProvinsinCity();
             this.tabPage5 = new DevExpress.XtraTab.XtraTabPage();
             this.DGVHIR = new DevExpress.XtraGrid.GridControl();
-            this.gridView2 = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.DGVHIRView = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.cpl_line_code = new DevExpress.XtraGrid.Columns.GridColumn();
             this.BTNA = new DevExpress.XtraGrid.Columns.GridColumn();
@@ -319,9 +319,9 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.cpl_cust_type = new DevExpress.XtraGrid.Columns.GridColumn();
             this.BTNB = new DevExpress.XtraGrid.Columns.GridColumn();
             this.ct_cust_type_desc = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.gridView2 = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.tabPage6 = new DevExpress.XtraTab.XtraTabPage();
             this.DVGSalesman = new DevExpress.XtraGrid.GridControl();
-            this.gridView3 = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.DVGSalesmanView = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.csc_salesman_id = new DevExpress.XtraGrid.Columns.GridColumn();
             this.btnc = new DevExpress.XtraGrid.Columns.GridColumn();
@@ -333,49 +333,45 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.csc_visit_week3 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.csc_visit_week4 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.csc_route = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.gridView3 = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.tabPage7 = new DevExpress.XtraTab.XtraTabPage();
             this.groupBox6 = new DevExpress.XtraEditors.GroupControl();
             this.DGVUnBackList = new DevExpress.XtraGrid.GridControl();
-            this.gridView4 = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.DGVUnBackListView = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.dataGridViewTextBoxColumn5 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.dataGridViewTextBoxColumn6 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.dataGridViewTextBoxColumn7 = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.gridView4 = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.groupBox5 = new DevExpress.XtraEditors.GroupControl();
             this.DGVBackList = new DevExpress.XtraGrid.GridControl();
-            this.gridView5 = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.DGVBackListView = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.BlackListDesc = new DevExpress.XtraGrid.Columns.GridColumn();
             this.UpdateDate = new DevExpress.XtraGrid.Columns.GridColumn();
             this.UserName = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.gridView5 = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.txtReason = new DevExpress.XtraEditors.TextEdit();
             this.CBBlacklist = new DevExpress.XtraEditors.CheckEdit();
             this.label18 = new DevExpress.XtraEditors.LabelControl();
             this.tabPage8 = new DevExpress.XtraTab.XtraTabPage();
             this.dgvGroupHarga = new DevExpress.XtraGrid.GridControl();
-            this.gridView6 = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.dgvGroupHargaView = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.grp_code = new DevExpress.XtraGrid.Columns.GridColumn();
             this.btnGroup = new DevExpress.XtraGrid.Columns.GridColumn();
             this.grp_desc = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.topbyprdline_page = new DevExpress.XtraTab.XtraTabPage();
-            this.lblTopByDivisionHelp = new DevExpress.XtraEditors.LabelControl();
-            this.topbyprdlinedgv = new DevExpress.XtraGrid.GridControl();
-            this.gridView7 = new DevExpress.XtraGrid.Views.Grid.GridView();
-            this.topbyprdlinedgvView = new DevExpress.XtraGrid.Views.Grid.GridView();
+            this.gridView6 = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.tabPage9 = new DevExpress.XtraTab.XtraTabPage();
             this.chkWeekly = new DevExpress.XtraEditors.CheckEdit();
             this.chkDaily = new DevExpress.XtraEditors.CheckEdit();
             this.dgvschpayW = new DevExpress.XtraGrid.GridControl();
-            this.gridView8 = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.dgvschpayWView = new DevExpress.XtraGrid.Views.Grid.GridView();
+            this.gridView8 = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.dgvschpayD = new DevExpress.XtraGrid.GridControl();
-            this.gridView9 = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.dgvschpayDView = new DevExpress.XtraGrid.Views.Grid.GridView();
+            this.gridView9 = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.tabPage10 = new DevExpress.XtraTab.XtraTabPage();
             this.dgvPrdLineBlocking = new DevExpress.XtraGrid.GridControl();
-            this.gridView10 = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.dgvPrdLineBlockingView = new DevExpress.XtraGrid.Views.Grid.GridView();
+            this.gridView10 = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.tabPage11 = new DevExpress.XtraTab.XtraTabPage();
             this.btnGeoTag = new DevExpress.XtraEditors.SimpleButton();
             this.txtLongEcom = new DevExpress.XtraEditors.TextEdit();
@@ -394,6 +390,13 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.label7 = new DevExpress.XtraEditors.LabelControl();
             this.txtLat = new DevExpress.XtraEditors.TextEdit();
             this.label8 = new DevExpress.XtraEditors.LabelControl();
+            this.tabPajak = new DevExpress.XtraTab.XtraTabPage();
+            this.gridPajak = new DevExpress.XtraGrid.GridControl();
+            this.gridPajakView = new DevExpress.XtraGrid.Views.Grid.GridView();
+            this.code = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.btn = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.desc = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.gridView1 = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.btnCancel = new DevExpress.XtraEditors.SimpleButton();
             this.btnOk = new DevExpress.XtraEditors.SimpleButton();
             this.textBox2 = new DevExpress.XtraEditors.TextEdit();
@@ -478,10 +481,11 @@ namespace TIRASnDNet.AR.ARCustMaster
             ((System.ComponentModel.ISupportInitialize)(this.txtMerchanid.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tabControl1)).BeginInit();
             this.tabControl1.SuspendLayout();
+            this.topbyprdline_page.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.topbyprdlinedgv)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.topbyprdlinedgvView)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridView7)).BeginInit();
             this.tabPage1.SuspendLayout();
-            this.partnerFunctionPage.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.partnerFunctionGrid)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.partnerFunctionView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cbfullfilment.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dtTglToIns.Properties.CalendarTimeProperties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dtTglToIns.Properties)).BeginInit();
@@ -500,6 +504,8 @@ namespace TIRASnDNet.AR.ARCustMaster
             ((System.ComponentModel.ISupportInitialize)(this.CBBagunanT1.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.CBPembyaranFktT1.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.comboBoxPajakT1.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtSalesOrganizationDescT1.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.comboBoxSalesOrganizationT1.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.checkBoxTopByCustomerT1.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.checkBoxDiscountBaseT1.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.checkBoxKontraBonT1.Properties)).BeginInit();
@@ -522,14 +528,12 @@ namespace TIRASnDNet.AR.ARCustMaster
             ((System.ComponentModel.ISupportInitialize)(this.txtTransaksiPertamaT1.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtRataRppT1.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtLimitKreditT1.Properties)).BeginInit();
+            this.partnerFunctionPage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.partnerFunctionGrid)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.partnerFunctionView)).BeginInit();
             this.tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.cbJenisIdentitas.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tabControl2)).BeginInit();
-            this.tabControl2.SuspendLayout();
-            this.tabPajak.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.gridPajak)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gridView1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gridPajakView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cbAddressChoice.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtSPPKP.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cbPemilikNIK.Properties)).BeginInit();
@@ -593,46 +597,42 @@ namespace TIRASnDNet.AR.ARCustMaster
             ((System.ComponentModel.ISupportInitialize)(this.txtCustNameT4.Properties)).BeginInit();
             this.tabPage5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DGVHIR)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gridView2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DGVHIRView)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridView2)).BeginInit();
             this.tabPage6.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DVGSalesman)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gridView3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DVGSalesmanView)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridView3)).BeginInit();
             this.tabPage7.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.groupBox6)).BeginInit();
             this.groupBox6.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DGVUnBackList)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gridView4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DGVUnBackListView)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridView4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.groupBox5)).BeginInit();
             this.groupBox5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DGVBackList)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gridView5)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DGVBackListView)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridView5)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtReason.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.CBBlacklist.Properties)).BeginInit();
             this.tabPage8.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvGroupHarga)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gridView6)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvGroupHargaView)).BeginInit();
-            this.topbyprdline_page.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.topbyprdlinedgv)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gridView7)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.topbyprdlinedgvView)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridView6)).BeginInit();
             this.tabPage9.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chkWeekly.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chkDaily.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvschpayW)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gridView8)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvschpayWView)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridView8)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvschpayD)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gridView9)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvschpayDView)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridView9)).BeginInit();
             this.tabPage10.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvPrdLineBlocking)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gridView10)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvPrdLineBlockingView)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridView10)).BeginInit();
             this.tabPage11.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtLongEcom.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtLatEcom.Properties)).BeginInit();
@@ -642,6 +642,10 @@ namespace TIRASnDNet.AR.ARCustMaster
             ((System.ComponentModel.ISupportInitialize)(this.txtLatNew.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtLong.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtLat.Properties)).BeginInit();
+            this.tabPajak.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.gridPajak)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridPajakView)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.textBox2.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.textBox3.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.textBox4.Properties)).BeginInit();
@@ -735,15 +739,16 @@ namespace TIRASnDNet.AR.ARCustMaster
             // 
             // checkBoxPODRelevant
             // 
-            this.checkBoxPODRelevant.Location = new System.Drawing.Point(311, 124);
+            this.checkBoxPODRelevant.Location = new System.Drawing.Point(311, 84);
             this.checkBoxPODRelevant.Name = "checkBoxPODRelevant";
             this.checkBoxPODRelevant.Properties.Caption = "Ya";
             this.checkBoxPODRelevant.Size = new System.Drawing.Size(51, 20);
             this.checkBoxPODRelevant.TabIndex = 194;
+            this.checkBoxPODRelevant.CheckedChanged += new System.EventHandler(this.checkBoxPODRelevant_CheckedChanged);
             // 
             // labelPODRelevant
             // 
-            this.labelPODRelevant.Location = new System.Drawing.Point(226, 127);
+            this.labelPODRelevant.Location = new System.Drawing.Point(232, 86);
             this.labelPODRelevant.Name = "labelPODRelevant";
             this.labelPODRelevant.Size = new System.Drawing.Size(67, 13);
             this.labelPODRelevant.TabIndex = 193;
@@ -1018,6 +1023,7 @@ namespace TIRASnDNet.AR.ARCustMaster
             // 
             this.BTNShipcust.Appearance.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.BTNShipcust.Appearance.Options.UseFont = true;
+            this.BTNShipcust.Enabled = false;
             this.BTNShipcust.ImageOptions.Image = global::TIRASnDNet.Properties.Resources.Binoculars2;
             this.BTNShipcust.Location = new System.Drawing.Point(268, 34);
             this.BTNShipcust.Name = "BTNShipcust";
@@ -1029,6 +1035,7 @@ namespace TIRASnDNet.AR.ARCustMaster
             // 
             this.BTNBillcust.Appearance.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.BTNBillcust.Appearance.Options.UseFont = true;
+            this.BTNBillcust.Enabled = false;
             this.BTNBillcust.ImageOptions.Image = global::TIRASnDNet.Properties.Resources.Binoculars2;
             this.BTNBillcust.Location = new System.Drawing.Point(327, 55);
             this.BTNBillcust.Name = "BTNBillcust";
@@ -1123,8 +1130,10 @@ namespace TIRASnDNet.AR.ARCustMaster
             // 
             // CBShipnBill
             // 
+            this.CBShipnBill.Enabled = false;
             this.CBShipnBill.Location = new System.Drawing.Point(118, 11);
             this.CBShipnBill.Name = "CBShipnBill";
+            this.CBShipnBill.Properties.ReadOnly = true;
             this.CBShipnBill.Size = new System.Drawing.Size(186, 20);
             this.CBShipnBill.TabIndex = 1;
             this.CBShipnBill.EditValueChanged += new System.EventHandler(this.CBShipnBill_SelectedIndexChanged);
@@ -1141,17 +1150,17 @@ namespace TIRASnDNet.AR.ARCustMaster
             // 
             this.label17.Location = new System.Drawing.Point(7, 60);
             this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(82, 13);
+            this.label17.Size = new System.Drawing.Size(77, 13);
             this.label17.TabIndex = 5;
-            this.label17.Text = "Bill to Cust. Code";
+            this.label17.Text = "Bill to Party (BP)";
             // 
             // label16
             // 
             this.label16.Location = new System.Drawing.Point(7, 37);
             this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(90, 13);
+            this.label16.Size = new System.Drawing.Size(85, 13);
             this.label16.TabIndex = 2;
-            this.label16.Text = "Ship to Cust. Code";
+            this.label16.Text = "Sold to Party (SP)";
             // 
             // label12
             // 
@@ -1264,6 +1273,47 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.tabPage10,
             this.tabPage11});
             // 
+            // topbyprdline_page
+            // 
+            this.topbyprdline_page.Controls.Add(this.lblTopByDivisionHelp);
+            this.topbyprdline_page.Controls.Add(this.topbyprdlinedgv);
+            this.topbyprdline_page.Name = "topbyprdline_page";
+            this.topbyprdline_page.Size = new System.Drawing.Size(778, 282);
+            this.topbyprdline_page.Text = "Customer by Division";
+            // 
+            // lblTopByDivisionHelp
+            // 
+            this.lblTopByDivisionHelp.Appearance.ForeColor = System.Drawing.Color.Maroon;
+            this.lblTopByDivisionHelp.Appearance.Options.UseForeColor = true;
+            this.lblTopByDivisionHelp.Location = new System.Drawing.Point(8, 259);
+            this.lblTopByDivisionHelp.Name = "lblTopByDivisionHelp";
+            this.lblTopByDivisionHelp.Size = new System.Drawing.Size(166, 13);
+            this.lblTopByDivisionHelp.TabIndex = 8;
+            this.lblTopByDivisionHelp.Text = "Press F10 : Insert Row For Extend";
+            // 
+            // topbyprdlinedgv
+            // 
+            this.topbyprdlinedgv.Location = new System.Drawing.Point(0, 0);
+            this.topbyprdlinedgv.MainView = this.topbyprdlinedgvView;
+            this.topbyprdlinedgv.Name = "topbyprdlinedgv";
+            this.topbyprdlinedgv.Size = new System.Drawing.Size(772, 252);
+            this.topbyprdlinedgv.TabIndex = 7;
+            this.topbyprdlinedgv.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
+            this.topbyprdlinedgvView,
+            this.gridView7});
+            this.topbyprdlinedgv.KeyDown += new System.Windows.Forms.KeyEventHandler(this.topbyprdlinedgv_KeyDown);
+            // 
+            // topbyprdlinedgvView
+            // 
+            this.topbyprdlinedgvView.GridControl = this.topbyprdlinedgv;
+            this.topbyprdlinedgvView.Name = "topbyprdlinedgvView";
+            this.topbyprdlinedgvView.OptionsView.ShowGroupPanel = false;
+            // 
+            // gridView7
+            // 
+            this.gridView7.GridControl = this.topbyprdlinedgv;
+            this.gridView7.Name = "gridView7";
+            // 
             // tabPage1
             // 
             this.tabPage1.Appearance.PageClient.BackColor = System.Drawing.Color.Gainsboro;
@@ -1293,6 +1343,9 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.tabPage1.Controls.Add(this.CBBagunanT1);
             this.tabPage1.Controls.Add(this.CBPembyaranFktT1);
             this.tabPage1.Controls.Add(this.comboBoxPajakT1);
+            this.tabPage1.Controls.Add(this.txtSalesOrganizationDescT1);
+            this.tabPage1.Controls.Add(this.comboBoxSalesOrganizationT1);
+            this.tabPage1.Controls.Add(this.labelSalesOrganization);
             this.tabPage1.Controls.Add(this.checkBoxTopByCustomerT1);
             this.tabPage1.Controls.Add(this.checkBoxDiscountBaseT1);
             this.tabPage1.Controls.Add(this.checkBoxKontraBonT1);
@@ -1348,91 +1401,6 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Size = new System.Drawing.Size(778, 282);
             this.tabPage1.Text = "Customer Attribut";
-            // 
-            // partnerFunctionPage
-            // 
-            this.partnerFunctionPage.Appearance.PageClient.BackColor = System.Drawing.Color.Gainsboro;
-            this.partnerFunctionPage.Appearance.PageClient.Options.UseBackColor = true;
-            this.partnerFunctionPage.Controls.Add(this.partnerFunctionGrid);
-            this.partnerFunctionPage.Name = "partnerFunctionPage";
-            this.partnerFunctionPage.Size = new System.Drawing.Size(778, 282);
-            this.partnerFunctionPage.Text = "Partner Function";
-            // 
-            // partnerFunctionGrid
-            // 
-            this.partnerFunctionGrid.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.partnerFunctionGrid.Location = new System.Drawing.Point(0, 0);
-            this.partnerFunctionGrid.MainView = this.partnerFunctionView;
-            this.partnerFunctionGrid.Name = "partnerFunctionGrid";
-            this.partnerFunctionGrid.Size = new System.Drawing.Size(778, 282);
-            this.partnerFunctionGrid.TabIndex = 0;
-            this.partnerFunctionGrid.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
-            this.partnerFunctionView});
-            // 
-            // partnerFunctionView
-            // 
-            this.partnerFunctionView.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
-            this.partnerNoCol,
-            this.partnerShipToCode1Col,
-            this.partnerShipToCode2Col,
-            this.partnerShipToButtonCol,
-            this.partnerShipToDescCol,
-            this.partnerDefaultCol});
-            this.partnerFunctionView.GridControl = this.partnerFunctionGrid;
-            this.partnerFunctionView.Name = "partnerFunctionView";
-            this.partnerFunctionView.OptionsView.ColumnAutoWidth = true;
-            this.partnerFunctionView.OptionsView.ShowGroupPanel = false;
-            // 
-            // partnerNoCol
-            // 
-            this.partnerNoCol.Caption = "Nomor";
-            this.partnerNoCol.FieldName = "no";
-            this.partnerNoCol.Name = "partnerNoCol";
-            this.partnerNoCol.Visible = true;
-            this.partnerNoCol.VisibleIndex = 0;
-            this.partnerNoCol.Width = 55;
-            // 
-            // partnerShipToCode1Col
-            // 
-            this.partnerShipToCode1Col.Caption = "msh_shipto_code1";
-            this.partnerShipToCode1Col.FieldName = "msh_shipto_code1";
-            this.partnerShipToCode1Col.Name = "partnerShipToCode1Col";
-            this.partnerShipToCode1Col.Visible = true;
-            this.partnerShipToCode1Col.VisibleIndex = 1;
-            this.partnerShipToCode1Col.Width = 120;
-            // 
-            // partnerShipToCode2Col
-            // 
-            this.partnerShipToCode2Col.Caption = "msh_shipto_code2";
-            this.partnerShipToCode2Col.FieldName = "msh_shipto_code2";
-            this.partnerShipToCode2Col.Name = "partnerShipToCode2Col";
-            this.partnerShipToCode2Col.Width = 120;
-            // 
-            // partnerShipToButtonCol
-            // 
-            this.partnerShipToButtonCol.FieldName = "shipto_btn";
-            this.partnerShipToButtonCol.Name = "partnerShipToButtonCol";
-            this.partnerShipToButtonCol.Visible = true;
-            this.partnerShipToButtonCol.VisibleIndex = 2;
-            this.partnerShipToButtonCol.Width = 28;
-            // 
-            // partnerShipToDescCol
-            // 
-            this.partnerShipToDescCol.Caption = "shipto description";
-            this.partnerShipToDescCol.FieldName = "shipto_desc";
-            this.partnerShipToDescCol.Name = "partnerShipToDescCol";
-            this.partnerShipToDescCol.Visible = true;
-            this.partnerShipToDescCol.VisibleIndex = 3;
-            this.partnerShipToDescCol.Width = 430;
-            // 
-            // partnerDefaultCol
-            // 
-            this.partnerDefaultCol.Caption = "default";
-            this.partnerDefaultCol.FieldName = "msh_default";
-            this.partnerDefaultCol.Name = "partnerDefaultCol";
-            this.partnerDefaultCol.Visible = true;
-            this.partnerDefaultCol.VisibleIndex = 5;
-            this.partnerDefaultCol.Width = 70;
             // 
             // label108
             // 
@@ -1644,6 +1612,33 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.comboBoxPajakT1.Name = "comboBoxPajakT1";
             this.comboBoxPajakT1.Size = new System.Drawing.Size(152, 20);
             this.comboBoxPajakT1.TabIndex = 23;
+            // 
+            // txtSalesOrganizationDescT1
+            // 
+            this.txtSalesOrganizationDescT1.Location = new System.Drawing.Point(193, 226);
+            this.txtSalesOrganizationDescT1.Name = "txtSalesOrganizationDescT1";
+            this.txtSalesOrganizationDescT1.Properties.Appearance.BackColor = System.Drawing.Color.White;
+            this.txtSalesOrganizationDescT1.Properties.Appearance.ForeColor = System.Drawing.Color.Black;
+            this.txtSalesOrganizationDescT1.Properties.Appearance.Options.UseBackColor = true;
+            this.txtSalesOrganizationDescT1.Properties.Appearance.Options.UseForeColor = true;
+            this.txtSalesOrganizationDescT1.Properties.ReadOnly = true;
+            this.txtSalesOrganizationDescT1.Size = new System.Drawing.Size(124, 20);
+            this.txtSalesOrganizationDescT1.TabIndex = 197;
+            // 
+            // comboBoxSalesOrganizationT1
+            // 
+            this.comboBoxSalesOrganizationT1.Location = new System.Drawing.Point(98, 226);
+            this.comboBoxSalesOrganizationT1.Name = "comboBoxSalesOrganizationT1";
+            this.comboBoxSalesOrganizationT1.Size = new System.Drawing.Size(56, 20);
+            this.comboBoxSalesOrganizationT1.TabIndex = 195;
+            // 
+            // labelSalesOrganization
+            // 
+            this.labelSalesOrganization.Location = new System.Drawing.Point(7, 229);
+            this.labelSalesOrganization.Name = "labelSalesOrganization";
+            this.labelSalesOrganization.Size = new System.Drawing.Size(89, 13);
+            this.labelSalesOrganization.TabIndex = 196;
+            this.labelSalesOrganization.Text = "Sales Organization";
             // 
             // checkBoxTopByCustomerT1
             // 
@@ -2126,6 +2121,90 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.label75.TabIndex = 24;
             this.label75.Text = "Limit Kredit";
             // 
+            // partnerFunctionPage
+            // 
+            this.partnerFunctionPage.Appearance.PageClient.BackColor = System.Drawing.Color.Gainsboro;
+            this.partnerFunctionPage.Appearance.PageClient.Options.UseBackColor = true;
+            this.partnerFunctionPage.Controls.Add(this.partnerFunctionGrid);
+            this.partnerFunctionPage.Name = "partnerFunctionPage";
+            this.partnerFunctionPage.Size = new System.Drawing.Size(778, 282);
+            this.partnerFunctionPage.Text = "Partner Function";
+            // 
+            // partnerFunctionGrid
+            // 
+            this.partnerFunctionGrid.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.partnerFunctionGrid.Location = new System.Drawing.Point(0, 0);
+            this.partnerFunctionGrid.MainView = this.partnerFunctionView;
+            this.partnerFunctionGrid.Name = "partnerFunctionGrid";
+            this.partnerFunctionGrid.Size = new System.Drawing.Size(778, 282);
+            this.partnerFunctionGrid.TabIndex = 0;
+            this.partnerFunctionGrid.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
+            this.partnerFunctionView});
+            // 
+            // partnerFunctionView
+            // 
+            this.partnerFunctionView.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
+            this.partnerNoCol,
+            this.partnerShipToCode1Col,
+            this.partnerShipToCode2Col,
+            this.partnerShipToButtonCol,
+            this.partnerShipToDescCol,
+            this.partnerDefaultCol});
+            this.partnerFunctionView.GridControl = this.partnerFunctionGrid;
+            this.partnerFunctionView.Name = "partnerFunctionView";
+            this.partnerFunctionView.OptionsView.ShowGroupPanel = false;
+            // 
+            // partnerNoCol
+            // 
+            this.partnerNoCol.Caption = "Nomor";
+            this.partnerNoCol.FieldName = "no";
+            this.partnerNoCol.Name = "partnerNoCol";
+            this.partnerNoCol.Visible = true;
+            this.partnerNoCol.VisibleIndex = 0;
+            this.partnerNoCol.Width = 55;
+            // 
+            // partnerShipToCode1Col
+            // 
+            this.partnerShipToCode1Col.Caption = "msh_shipto_code1";
+            this.partnerShipToCode1Col.FieldName = "msh_shipto_code1";
+            this.partnerShipToCode1Col.Name = "partnerShipToCode1Col";
+            this.partnerShipToCode1Col.Visible = true;
+            this.partnerShipToCode1Col.VisibleIndex = 1;
+            this.partnerShipToCode1Col.Width = 120;
+            // 
+            // partnerShipToCode2Col
+            // 
+            this.partnerShipToCode2Col.Caption = "msh_shipto_code2";
+            this.partnerShipToCode2Col.FieldName = "msh_shipto_code2";
+            this.partnerShipToCode2Col.Name = "partnerShipToCode2Col";
+            this.partnerShipToCode2Col.Width = 120;
+            // 
+            // partnerShipToButtonCol
+            // 
+            this.partnerShipToButtonCol.FieldName = "shipto_btn";
+            this.partnerShipToButtonCol.Name = "partnerShipToButtonCol";
+            this.partnerShipToButtonCol.Visible = true;
+            this.partnerShipToButtonCol.VisibleIndex = 2;
+            this.partnerShipToButtonCol.Width = 28;
+            // 
+            // partnerShipToDescCol
+            // 
+            this.partnerShipToDescCol.Caption = "shipto description";
+            this.partnerShipToDescCol.FieldName = "shipto_desc";
+            this.partnerShipToDescCol.Name = "partnerShipToDescCol";
+            this.partnerShipToDescCol.Visible = true;
+            this.partnerShipToDescCol.VisibleIndex = 3;
+            this.partnerShipToDescCol.Width = 430;
+            // 
+            // partnerDefaultCol
+            // 
+            this.partnerDefaultCol.Caption = "default";
+            this.partnerDefaultCol.FieldName = "msh_default";
+            this.partnerDefaultCol.Name = "partnerDefaultCol";
+            this.partnerDefaultCol.Visible = true;
+            this.partnerDefaultCol.VisibleIndex = 4;
+            this.partnerDefaultCol.Width = 70;
+            // 
             // tabPage2
             // 
             this.tabPage2.Appearance.PageClient.BackColor = System.Drawing.Color.Gainsboro;
@@ -2215,54 +2294,6 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.tabControl2.Name = "tabControl2";
             this.tabControl2.Size = new System.Drawing.Size(371, 159);
             this.tabControl2.TabIndex = 233;
-            // 
-            // tabPajak
-            // 
-            this.tabPajak.Controls.Add(this.gridPajak);
-            this.tabPajak.Name = "tabPajak";
-            this.tabPajak.Size = new System.Drawing.Size(363, 133);
-            this.tabPajak.Text = "Type Pajak";
-            // 
-            // gridPajak
-            // 
-            this.gridPajak.Location = new System.Drawing.Point(3, 3);
-            this.gridPajak.MainView = this.gridPajakView;
-            this.gridPajak.Name = "gridPajak";
-            this.gridPajak.Size = new System.Drawing.Size(357, 127);
-            this.gridPajak.TabIndex = 0;
-            this.gridPajak.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
-            this.gridView1,
-            this.gridPajakView});
-            // 
-            // gridView1
-            // 
-            this.gridView1.GridControl = this.gridPajak;
-            this.gridView1.Name = "gridView1";
-            // 
-            // gridPajakView
-            // 
-            this.gridPajakView.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
-            this.code,
-            this.btn,
-            this.desc});
-            this.gridPajakView.GridControl = this.gridPajak;
-            this.gridPajakView.Name = "gridPajakView";
-            this.gridPajakView.OptionsView.ShowGroupPanel = false;
-            // 
-            // code
-            // 
-            this.code.Caption = "Code";
-            this.code.Name = "code";
-            // 
-            // btn
-            // 
-            this.btn.Name = "btn";
-            this.btn.Width = 20;
-            // 
-            // desc
-            // 
-            this.desc.Caption = "Desc";
-            this.desc.Name = "desc";
             // 
             // cbAddressChoice
             // 
@@ -3502,13 +3533,8 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.DGVHIR.Size = new System.Drawing.Size(753, 237);
             this.DGVHIR.TabIndex = 0;
             this.DGVHIR.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
-            this.gridView2,
-            this.DGVHIRView});
-            // 
-            // gridView2
-            // 
-            this.gridView2.GridControl = this.DGVHIR;
-            this.gridView2.Name = "gridView2";
+            this.DGVHIRView,
+            this.gridView2});
             // 
             // DGVHIRView
             // 
@@ -3561,6 +3587,11 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.ct_cust_type_desc.Name = "ct_cust_type_desc";
             this.ct_cust_type_desc.Width = 260;
             // 
+            // gridView2
+            // 
+            this.gridView2.GridControl = this.DGVHIR;
+            this.gridView2.Name = "gridView2";
+            // 
             // tabPage6
             // 
             this.tabPage6.Appearance.PageClient.BackColor = System.Drawing.Color.Gainsboro;
@@ -3578,13 +3609,8 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.DVGSalesman.Size = new System.Drawing.Size(754, 237);
             this.DVGSalesman.TabIndex = 0;
             this.DVGSalesman.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
-            this.gridView3,
-            this.DVGSalesmanView});
-            // 
-            // gridView3
-            // 
-            this.gridView3.GridControl = this.DVGSalesman;
-            this.gridView3.Name = "gridView3";
+            this.DVGSalesmanView,
+            this.gridView3});
             // 
             // DVGSalesmanView
             // 
@@ -3670,6 +3696,11 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.csc_route.Name = "csc_route";
             this.csc_route.Width = 65;
             // 
+            // gridView3
+            // 
+            this.gridView3.GridControl = this.DVGSalesman;
+            this.gridView3.Name = "gridView3";
+            // 
             // tabPage7
             // 
             this.tabPage7.Appearance.PageClient.BackColor = System.Drawing.Color.Gainsboro;
@@ -3700,13 +3731,8 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.DGVUnBackList.Size = new System.Drawing.Size(370, 189);
             this.DGVUnBackList.TabIndex = 0;
             this.DGVUnBackList.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
-            this.gridView4,
-            this.DGVUnBackListView});
-            // 
-            // gridView4
-            // 
-            this.gridView4.GridControl = this.DGVUnBackList;
-            this.gridView4.Name = "gridView4";
+            this.DGVUnBackListView,
+            this.gridView4});
             // 
             // DGVUnBackListView
             // 
@@ -3738,6 +3764,11 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.dataGridViewTextBoxColumn7.FieldName = "cbh_update_by2";
             this.dataGridViewTextBoxColumn7.Name = "dataGridViewTextBoxColumn7";
             // 
+            // gridView4
+            // 
+            this.gridView4.GridControl = this.DGVUnBackList;
+            this.gridView4.Name = "gridView4";
+            // 
             // groupBox5
             // 
             this.groupBox5.Controls.Add(this.DGVBackList);
@@ -3755,13 +3786,8 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.DGVBackList.Size = new System.Drawing.Size(356, 189);
             this.DGVBackList.TabIndex = 0;
             this.DGVBackList.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
-            this.gridView5,
-            this.DGVBackListView});
-            // 
-            // gridView5
-            // 
-            this.gridView5.GridControl = this.DGVBackList;
-            this.gridView5.Name = "gridView5";
+            this.DGVBackListView,
+            this.gridView5});
             // 
             // DGVBackListView
             // 
@@ -3790,6 +3816,11 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.UserName.Caption = "User Name";
             this.UserName.FieldName = "cbh_update_by";
             this.UserName.Name = "UserName";
+            // 
+            // gridView5
+            // 
+            this.gridView5.GridControl = this.DGVBackList;
+            this.gridView5.Name = "gridView5";
             // 
             // txtReason
             // 
@@ -3831,13 +3862,8 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.dgvGroupHarga.Size = new System.Drawing.Size(753, 237);
             this.dgvGroupHarga.TabIndex = 1;
             this.dgvGroupHarga.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
-            this.gridView6,
-            this.dgvGroupHargaView});
-            // 
-            // gridView6
-            // 
-            this.gridView6.GridControl = this.dgvGroupHarga;
-            this.gridView6.Name = "gridView6";
+            this.dgvGroupHargaView,
+            this.gridView6});
             // 
             // dgvGroupHargaView
             // 
@@ -3868,46 +3894,10 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.grp_desc.Name = "grp_desc";
             this.grp_desc.Width = 490;
             // 
-            // topbyprdline_page
+            // gridView6
             // 
-            this.topbyprdline_page.Controls.Add(this.lblTopByDivisionHelp);
-            this.topbyprdline_page.Controls.Add(this.topbyprdlinedgv);
-            this.topbyprdline_page.Name = "topbyprdline_page";
-            this.topbyprdline_page.Size = new System.Drawing.Size(778, 282);
-            this.topbyprdline_page.Text = "Customer by Division";
-            // 
-            // lblTopByDivisionHelp
-            // 
-            this.lblTopByDivisionHelp.Appearance.ForeColor = System.Drawing.Color.Maroon;
-            this.lblTopByDivisionHelp.Appearance.Options.UseForeColor = true;
-            this.lblTopByDivisionHelp.Location = new System.Drawing.Point(8, 259);
-            this.lblTopByDivisionHelp.Name = "lblTopByDivisionHelp";
-            this.lblTopByDivisionHelp.Size = new System.Drawing.Size(166, 13);
-            this.lblTopByDivisionHelp.TabIndex = 8;
-            this.lblTopByDivisionHelp.Text = "Press F10 : Insert Row For Extend";
-            // 
-            // topbyprdlinedgv
-            // 
-            this.topbyprdlinedgv.Location = new System.Drawing.Point(0, 0);
-            this.topbyprdlinedgv.MainView = this.topbyprdlinedgvView;
-            this.topbyprdlinedgv.Name = "topbyprdlinedgv";
-            this.topbyprdlinedgv.Size = new System.Drawing.Size(772, 252);
-            this.topbyprdlinedgv.TabIndex = 7;
-            this.topbyprdlinedgv.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
-            this.gridView7,
-            this.topbyprdlinedgvView});
-            this.topbyprdlinedgv.KeyDown += new System.Windows.Forms.KeyEventHandler(this.topbyprdlinedgv_KeyDown);
-            // 
-            // gridView7
-            // 
-            this.gridView7.GridControl = this.topbyprdlinedgv;
-            this.gridView7.Name = "gridView7";
-            // 
-            // topbyprdlinedgvView
-            // 
-            this.topbyprdlinedgvView.GridControl = this.topbyprdlinedgv;
-            this.topbyprdlinedgvView.Name = "topbyprdlinedgvView";
-            this.topbyprdlinedgvView.OptionsView.ShowGroupPanel = false;
+            this.gridView6.GridControl = this.dgvGroupHarga;
+            this.gridView6.Name = "gridView6";
             // 
             // tabPage9
             // 
@@ -3947,19 +3937,19 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.dgvschpayW.Size = new System.Drawing.Size(378, 216);
             this.dgvschpayW.TabIndex = 3;
             this.dgvschpayW.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
-            this.gridView8,
-            this.dgvschpayWView});
-            // 
-            // gridView8
-            // 
-            this.gridView8.GridControl = this.dgvschpayW;
-            this.gridView8.Name = "gridView8";
+            this.dgvschpayWView,
+            this.gridView8});
             // 
             // dgvschpayWView
             // 
             this.dgvschpayWView.GridControl = this.dgvschpayW;
             this.dgvschpayWView.Name = "dgvschpayWView";
             this.dgvschpayWView.OptionsView.ShowGroupPanel = false;
+            // 
+            // gridView8
+            // 
+            this.gridView8.GridControl = this.dgvschpayW;
+            this.gridView8.Name = "gridView8";
             // 
             // dgvschpayD
             // 
@@ -3969,19 +3959,19 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.dgvschpayD.Size = new System.Drawing.Size(376, 216);
             this.dgvschpayD.TabIndex = 2;
             this.dgvschpayD.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
-            this.gridView9,
-            this.dgvschpayDView});
-            // 
-            // gridView9
-            // 
-            this.gridView9.GridControl = this.dgvschpayD;
-            this.gridView9.Name = "gridView9";
+            this.dgvschpayDView,
+            this.gridView9});
             // 
             // dgvschpayDView
             // 
             this.dgvschpayDView.GridControl = this.dgvschpayD;
             this.dgvschpayDView.Name = "dgvschpayDView";
             this.dgvschpayDView.OptionsView.ShowGroupPanel = false;
+            // 
+            // gridView9
+            // 
+            this.gridView9.GridControl = this.dgvschpayD;
+            this.gridView9.Name = "gridView9";
             // 
             // tabPage10
             // 
@@ -3998,19 +3988,19 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.dgvPrdLineBlocking.Size = new System.Drawing.Size(766, 275);
             this.dgvPrdLineBlocking.TabIndex = 8;
             this.dgvPrdLineBlocking.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
-            this.gridView10,
-            this.dgvPrdLineBlockingView});
-            // 
-            // gridView10
-            // 
-            this.gridView10.GridControl = this.dgvPrdLineBlocking;
-            this.gridView10.Name = "gridView10";
+            this.dgvPrdLineBlockingView,
+            this.gridView10});
             // 
             // dgvPrdLineBlockingView
             // 
             this.dgvPrdLineBlockingView.GridControl = this.dgvPrdLineBlocking;
             this.dgvPrdLineBlockingView.Name = "dgvPrdLineBlockingView";
             this.dgvPrdLineBlockingView.OptionsView.ShowGroupPanel = false;
+            // 
+            // gridView10
+            // 
+            this.gridView10.GridControl = this.dgvPrdLineBlocking;
+            this.gridView10.Name = "gridView10";
             // 
             // tabPage11
             // 
@@ -4242,6 +4232,54 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.label8.Size = new System.Drawing.Size(56, 13);
             this.label8.TabIndex = 13;
             this.label8.Text = "Longitude *";
+            // 
+            // tabPajak
+            // 
+            this.tabPajak.Controls.Add(this.gridPajak);
+            this.tabPajak.Name = "tabPajak";
+            this.tabPajak.Size = new System.Drawing.Size(363, 133);
+            this.tabPajak.Text = "Type Pajak";
+            // 
+            // gridPajak
+            // 
+            this.gridPajak.Location = new System.Drawing.Point(3, 3);
+            this.gridPajak.MainView = this.gridPajakView;
+            this.gridPajak.Name = "gridPajak";
+            this.gridPajak.Size = new System.Drawing.Size(357, 127);
+            this.gridPajak.TabIndex = 0;
+            this.gridPajak.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
+            this.gridPajakView,
+            this.gridView1});
+            // 
+            // gridPajakView
+            // 
+            this.gridPajakView.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
+            this.code,
+            this.btn,
+            this.desc});
+            this.gridPajakView.GridControl = this.gridPajak;
+            this.gridPajakView.Name = "gridPajakView";
+            this.gridPajakView.OptionsView.ShowGroupPanel = false;
+            // 
+            // code
+            // 
+            this.code.Caption = "Code";
+            this.code.Name = "code";
+            // 
+            // btn
+            // 
+            this.btn.Name = "btn";
+            this.btn.Width = 20;
+            // 
+            // desc
+            // 
+            this.desc.Caption = "Desc";
+            this.desc.Name = "desc";
+            // 
+            // gridView1
+            // 
+            this.gridView1.GridControl = this.gridPajak;
+            this.gridView1.Name = "gridView1";
             // 
             // btnCancel
             // 
@@ -4672,6 +4710,11 @@ namespace TIRASnDNet.AR.ARCustMaster
             ((System.ComponentModel.ISupportInitialize)(this.txtMerchanid.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tabControl1)).EndInit();
             this.tabControl1.ResumeLayout(false);
+            this.topbyprdline_page.ResumeLayout(false);
+            this.topbyprdline_page.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.topbyprdlinedgv)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.topbyprdlinedgvView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridView7)).EndInit();
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.cbfullfilment.Properties)).EndInit();
@@ -4692,6 +4735,8 @@ namespace TIRASnDNet.AR.ARCustMaster
             ((System.ComponentModel.ISupportInitialize)(this.CBBagunanT1.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.CBPembyaranFktT1.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.comboBoxPajakT1.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtSalesOrganizationDescT1.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.comboBoxSalesOrganizationT1.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.checkBoxTopByCustomerT1.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.checkBoxDiscountBaseT1.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.checkBoxKontraBonT1.Properties)).EndInit();
@@ -4721,11 +4766,6 @@ namespace TIRASnDNet.AR.ARCustMaster
             this.tabPage2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.cbJenisIdentitas.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tabControl2)).EndInit();
-            this.tabControl2.ResumeLayout(false);
-            this.tabPajak.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.gridPajak)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gridView1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gridPajakView)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.cbAddressChoice.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtSPPKP.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.cbPemilikNIK.Properties)).EndInit();
@@ -4791,49 +4831,43 @@ namespace TIRASnDNet.AR.ARCustMaster
             ((System.ComponentModel.ISupportInitialize)(this.txtCustNameT4.Properties)).EndInit();
             this.tabPage5.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.DGVHIR)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gridView2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DGVHIRView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridView2)).EndInit();
             this.tabPage6.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.DVGSalesman)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gridView3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DVGSalesmanView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridView3)).EndInit();
             this.tabPage7.ResumeLayout(false);
             this.tabPage7.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.groupBox6)).EndInit();
             this.groupBox6.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.DGVUnBackList)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gridView4)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DGVUnBackListView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridView4)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.groupBox5)).EndInit();
             this.groupBox5.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.DGVBackList)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gridView5)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DGVBackListView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridView5)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtReason.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.CBBlacklist.Properties)).EndInit();
             this.tabPage8.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvGroupHarga)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gridView6)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvGroupHargaView)).EndInit();
-            this.topbyprdline_page.ResumeLayout(false);
-            this.topbyprdline_page.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.topbyprdlinedgv)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gridView7)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.topbyprdlinedgvView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridView6)).EndInit();
             this.tabPage9.ResumeLayout(false);
-            this.tabPage9.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chkWeekly.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chkDaily.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvschpayW)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gridView8)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvschpayWView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridView8)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvschpayD)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gridView9)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvschpayDView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridView9)).EndInit();
             this.tabPage10.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvPrdLineBlocking)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gridView10)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvPrdLineBlockingView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridView10)).EndInit();
             this.tabPage11.ResumeLayout(false);
             this.tabPage11.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtLongEcom.Properties)).EndInit();
@@ -4844,6 +4878,10 @@ namespace TIRASnDNet.AR.ARCustMaster
             ((System.ComponentModel.ISupportInitialize)(this.txtLatNew.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtLong.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtLat.Properties)).EndInit();
+            this.tabPajak.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.gridPajak)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridPajakView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridView1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.textBox2.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.textBox3.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.textBox4.Properties)).EndInit();
@@ -5272,6 +5310,9 @@ namespace TIRASnDNet.AR.ARCustMaster
         private DevExpress.XtraGrid.Columns.GridColumn partnerDefaultCol;
         private DevExpress.XtraEditors.CheckEdit checkBoxPODRelevant;
         private DevExpress.XtraEditors.LabelControl labelPODRelevant;
+        private DevExpress.XtraEditors.SearchLookUpEdit comboBoxSalesOrganizationT1;
+        private DevExpress.XtraEditors.TextEdit txtSalesOrganizationDescT1;
+        private DevExpress.XtraEditors.LabelControl labelSalesOrganization;
         private DevExpress.XtraEditors.LabelControl lblTopByDivisionHelp;
         private DevExpress.XtraEditors.DXErrorProvider.DXValidationProvider dxValidationProvider1;
         private DevExpress.XtraGrid.Views.Grid.GridView gridView7;
